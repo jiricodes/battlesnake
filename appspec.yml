@@ -12,7 +12,7 @@ hooks:
     - location: scripts/prerequirements.sh
       timeout: 300
       runas: ubuntu
-  ApplicationRun:
-    - location: scripts/app_srun.sh
+  ApplicationStart:
+    - location: scripts/app_run.sh
       timeout: 300
       runas: ubuntu
