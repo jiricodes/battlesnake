@@ -1,6 +1,10 @@
 #!/bin/bash
 ## run the app
 
+sudo apt-get install build-essential -y
+curl https://sh.rustup.rs -sSf | sh -s -- -y
+export PATH="$HOME/.cargo/bin:$PATH"
+
 # Target directory
 DIR="/home/ubuntu/battlesnake"
 
