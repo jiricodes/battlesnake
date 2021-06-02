@@ -5,10 +5,14 @@ use std::{env, fs, path::Path};
 mod server;
 use server::Server;
 
-mod website_handler;
-use website_handler::WebsiteHandler;
+// mod website_handler;
+// use website_handler::WebsiteHandler;
+
+mod request_handler;
+use request_handler::RequestHandler;
 
 mod http;
+mod battlesnake;
 
 use clap::{App, Arg};
 
@@ -59,5 +63,5 @@ fn main() {
     // Initialize Server
     let server: Server = Server::new(format!("{}:{}", ip, port));
     // Run server
-    server.run(WebsiteHandler::new(absolute_path));
+    server.run(RequestHandler::new(absolute_path));
 }

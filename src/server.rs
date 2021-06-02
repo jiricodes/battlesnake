@@ -38,12 +38,13 @@ impl Server {
                     match stream.read(&mut buffer) {
                         Ok(size) => {
                             println!("Read {} bytes:", size);
-                            // println!("{}", String::from_utf8_lossy(&buffer));
+                            println!("{}", String::from_utf8_lossy(&buffer));
 
                             let response = match Request::try_from(&buffer as &[u8]) {
                                 Ok(request) => handler.handle_request(&request),
                                 Err(e) => handler.handle_bad_request(&e),
                             };
+							dbg!(&response);
                             if let Err(e) = response.send(&mut stream) {
                                 println!("Failed to send response: {}", e);
                             }
