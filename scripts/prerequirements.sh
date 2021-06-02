@@ -17,3 +17,4 @@ else
 	echo "Creating ${DIR} directory"
 	mkdir ${DIR}
 fi
+mkdir -p ${DIR}/logs
