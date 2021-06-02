@@ -54,7 +54,7 @@ fn main() {
         .into_string()
         .unwrap();
     dbg!(&absolute_path);
-    let ip = arguments.value_of("ip_address").unwrap_or("127.0.0.1");
+    let ip = arguments.value_of("ip_address").unwrap_or("0.0.0.0");
     let port = arguments.value_of("port").unwrap_or("6969");
     // Initialize Server
     let server: Server = Server::new(format!("{}:{}", ip, port));
