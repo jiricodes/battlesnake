@@ -12,4 +12,4 @@ cargo build
 
 # run on background and log into timestamped logs
 N=$(date +"%Y%m%dT%H%M")
-cargo run -- -i 0.0.0.0 > ${DIR}/logs/$N.out.log 2> ${DIR}/logs/$N.err.log </dev/null &
+cargo run > ${DIR}/logs/$N.out.log 2> ${DIR}/logs/$N.err.log </dev/null &
