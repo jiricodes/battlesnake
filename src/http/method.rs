@@ -1,6 +1,7 @@
 use std::str::FromStr;
+use std::fmt;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Method {
     GET,
     DELETE,
@@ -33,3 +34,20 @@ impl FromStr for Method {
 }
 
 pub struct MethodError;
+
+impl fmt::Display for Method {
+	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+		let m = match self {
+			Method::GET => "GET",
+			Method::DELETE => "DELETE",
+			Method::POST => "POST",
+			Method::PUT => "PUT",
+			Method::HEAD => "HEAD",
+			Method::CONNECT => "CONNECT",
+			Method::OPTIONS => "OPTIONS",
+			Method::TRACE => "TRACE",
+			Method::PATCH => "PATCH",
+		};
+        write!(f, "{}", m)
+    }
+}

@@ -1,18 +1,20 @@
 use super::http::{Method, Request, Response, StatusCode};
 use super::server::Handler;
-use super::battlesnake::Snake;
+use super::battlesnake::SnakeProps;
+use super::battlesnake::Move;
+
 use std::fs;
 
 pub struct RequestHandler {
     public_path: String,
-	snake: Snake,
+	snake: SnakeProps,
 }
 
 impl RequestHandler {
     pub fn new(public_path: String) -> Self {
         Self { 
 				public_path: public_path,
-				snake: Snake::new() }
+				snake: SnakeProps::new() }
     }
 
     fn read_file(&self, file_path: &str) -> Option<String> {
@@ -39,7 +41,7 @@ impl RequestHandler {
 
 impl Handler for RequestHandler {
     fn handle_request(&mut self, request: &Request) -> Response {
-        dbg!(request);
+        println!("Received: {}", request);
 
         match request.method() {
             Method::GET => match request.path() {
@@ -52,7 +54,7 @@ impl Handler for RequestHandler {
             },
 			Method::POST => match request.path() {
 				"/start" => Response::new(StatusCode::Ok, None),
-				"/move" => Response::new(StatusCode::Ok, Some(String::from(r#"{"move": "up", "shout" : "test"}"#))),
+				"/move" => Response::new(StatusCode::Ok, Move::as_option_string(request.body())),
 				"/end" => Response::new(StatusCode::Ok, None),
 				_ => Response::new(StatusCode::NotFound, None),
 			},

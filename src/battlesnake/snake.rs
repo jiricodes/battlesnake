@@ -2,7 +2,7 @@ use serde::{Serialize, Deserialize};
 
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct Snake {
+pub struct SnakeProps {
 	apiversion: String,
 	author: String,
 	color: String,
@@ -11,7 +11,7 @@ pub struct Snake {
 	version: String,
 }
 
-impl Snake {
+impl SnakeProps {
 	pub fn new() -> Self {
 		Self {
 			apiversion: String::from("1"),

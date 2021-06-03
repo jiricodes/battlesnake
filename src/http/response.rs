@@ -1,5 +1,6 @@
 use super::StatusCode;
 use std::io::{Result as IoResult, Write};
+use std::fmt;
 
 #[derive(Debug)]
 pub struct Response {
@@ -24,5 +25,15 @@ impl Response {
             self.status_code.reason_phrase(),
             body
         )
+    }
+}
+
+impl fmt::Display for Response {
+	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+		let body = match &self.body {
+			Some(s) => String::from(s),
+			None => String::from(""),
+		};
+        write!(f, "Code: {}\nBody: {}", self.status_code, body)
     }
 }

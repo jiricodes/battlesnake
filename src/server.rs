@@ -32,19 +32,19 @@ impl Server {
         println!("Listening at {}", self.address);
         loop {
             match listener.accept() {
-                Ok((mut stream, address)) => {
-                    println!("Connection established with {}", address);
+                Ok((mut stream, _)) => {
+                    println!("");
                     let mut buffer: [u8; 4096] = [0; 4096];
                     match stream.read(&mut buffer) {
-                        Ok(size) => {
-                            println!("Read {} bytes:", size);
-                            println!("{}", String::from_utf8_lossy(&buffer));
+                        Ok(_) => {
+                            // println!("Read {} bytes:", size);
+                            // println!("{}", String::from_utf8_lossy(&buffer));
 
                             let response = match Request::try_from(&buffer as &[u8]) {
                                 Ok(request) => handler.handle_request(&request),
                                 Err(e) => handler.handle_bad_request(&e),
                             };
-							dbg!(&response);
+							println!("Responding:\n{}", &response);
                             if let Err(e) = response.send(&mut stream) {
                                 println!("Failed to send response: {}", e);
                             }
@@ -56,12 +56,6 @@ impl Server {
                     println!("Failed to establish a connection: {}", e);
                 }
             }
-            // let result = listener.accept();
-            // if result.is_err() {
-            // 	println!("Experienced connection error. Continuing.");
-            // 	continue ;
-            // }
-            // let (stream, socket_address) = result.unwrap();
         }
     }
 }
