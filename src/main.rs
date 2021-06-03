@@ -5,9 +5,6 @@ use std::{env, fs, path::Path};
 mod server;
 use server::Server;
 
-// mod website_handler;
-// use website_handler::WebsiteHandler;
-
 mod request_handler;
 use request_handler::RequestHandler;
 
