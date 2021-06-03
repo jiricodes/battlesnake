@@ -46,7 +46,7 @@ pub struct GameInfo {
 
 impl GameInfo {
 	pub fn new(data: &str) -> Self {
-		dbg!(&data);
+		// dbg!(&data);
 		let new_object: GameInfo = serde_json::from_str(data).unwrap();
 		return new_object;
 	}
