@@ -2,8 +2,15 @@ use serde::{Serialize, Deserialize};
 use super::point::Point;
 
 #[derive(Serialize, Deserialize, Debug)]
+struct Ruleset {
+	name: String,
+	version: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
 struct GameData {
 	id: String,
+	ruleset: Ruleset,
 	timeout: i32,
 }
 
@@ -22,11 +29,11 @@ struct Snake {
 	name: String,
 	health: i32,
 	body: Vec<Point>,
-	latency: i32,
+	// latency: i32,
 	head: Point,
 	length: i32,
 	shout: String,
-	squad: String
+	// squad: String
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -60,5 +67,57 @@ impl GameInfo {
 				snakes_bodies.append(&mut to_add);
 		}
 		snakes_bodies
+	}
+}
+
+#[cfg(test)]
+mod test {
+	use super::*;
+	#[test]
+	fn test_input() {
+		let data = r#"{
+			"game":{
+				"id":"00ca670e-d1e2-485f-9c39-17b531c9f377",
+				"ruleset":{
+					"name":"solo",
+					"version":"v1.0.17"},
+				"timeout":500},
+				"turn":0,
+				"board":{
+					"height":7,
+					"width":7,
+					"snakes":[
+						{
+							"id":"gs_gvjGj8FFftxTwh4T9fhx498D",
+							"name":"DefaultAWS",
+							"latency":"",
+							"health":100,
+							"body":[
+								{"x":5,"y":5},
+								{"x":5,"y":5},
+								{"x":5,"y":5}],
+							"head":{"x":5,"y":5},
+							"length":3,
+							"shout":""
+						}],
+					"food":[
+						{"x":6,"y":4},
+						{"x":3,"y":3}],
+					"hazards":[]},
+				"you":{
+					"id":"gs_gvjGj8FFftxTwh4T9fhx498D",
+					"name":"DefaultAWS",
+					"latency":"",
+					"health":100,
+					"body":[
+						{"x":5,"y":5},
+						{"x":5,"y":5},
+						{"x":5,"y":5}],
+					"head":{"x":5,"y":5},
+					"length":3,
+					"shout":""}
+			}"#;
+		let gameinfo = GameInfo::new(&data);
+		dbg!(gameinfo);
 	}
 }
