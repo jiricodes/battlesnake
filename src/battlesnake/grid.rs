@@ -88,10 +88,13 @@ impl GameGrid {
 impl fmt::Display for GameGrid {
 	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
 		let mut grid_text = String::new();
-		for (i, cell) in self.data.iter().enumerate() {
-			grid_text.push_str(&format!("{}", cell));
+		let mut line = String::new();
+		for (i, cell) in self.data.iter().rev().enumerate() {
+			line.insert_str(0, &format!("{}", cell));
 			if (i + 1) % self.width == 0 {
-				grid_text.push_str("\n");
+				line.push_str("\n");
+				grid_text.push_str(&line);
+				line.clear();
 			}
 		}
 		write!(f, "{}", grid_text)
