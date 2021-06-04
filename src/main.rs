@@ -8,6 +8,8 @@ mod battlesnake;
 use battlesnake::SnakeProps;
 use battlesnake::Move;
 
+use std::time::Instant;
+
 #[get("/")]
 fn index() -> Json<String> {
 	println!("\nReceived Index");
@@ -18,9 +20,11 @@ fn index() -> Json<String> {
 
 #[post("/move", data = "<data>")]
 fn domove(data: String) -> Json<String> {
+	let start = Instant::now();
 	println!("\nReceived Move");
 	let movement = Move::new(&data);
 	println!("Move: {}", &movement);
+	println!("----\nAsnwered in {}\n---\n", start.elapsed().as_millis());
 	Json(movement.get_json_string())
 }
 
