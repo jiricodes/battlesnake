@@ -13,6 +13,9 @@ DIR="/home/ubuntu/battlesnake"
 # switch to target
 cd ${DIR}
 
+# remove Cargo.lock just in case
+rm Cargo.lock
+
 # build the binary
 echo "Building BattleSnake API"
 cargo build
