@@ -24,8 +24,8 @@ fn get_body(request: &str) -> &str {
 			Some(_) => {
 				let input: Vec<&str> = line.split(' ').collect();
 				l = input[1].parse().unwrap();
-				// dbg!(&input);
-				// dbg!(&l);
+				dbg!(&input);
+				dbg!(&l);
 				break;
 			},
 			None => { continue; },
