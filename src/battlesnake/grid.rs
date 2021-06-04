@@ -1,12 +1,36 @@
 use super::point::Point;
+use std::fmt;
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum GridObject {
 	EMPTY,
 	FOOD,
-	SNAKE,
+	SNAKE(usize),
 	HAZARD,
 	OUTOFBOUND
+}
+
+impl fmt::Display for GridObject {
+	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+		let symbol = match self {
+			GridObject::EMPTY => "◦",
+			GridObject::FOOD => "⚕",
+			GridObject::SNAKE(n) => match n {
+				0 => "■",
+				1 => "⌀",
+				2 => "●",
+				3 => "⍟",
+				4 => "◘",
+				5 => "☺",
+				6 => "□",
+				7 => "☻",
+				_ => "S",
+			},
+			GridObject::HAZARD => "H",
+			GridObject::OUTOFBOUND => "X",
+		};
+		write!(f, "{}", symbol)
+	}
 }
 
 pub struct GameGrid {
@@ -49,13 +73,28 @@ impl GameGrid {
 	}
 
 	// invalid points are ignored
-	pub fn set_snakes(&mut self, obstacles: Vec<Point>) {
-		for point in obstacles.iter() {
-			match self.get_index(&point) {
-				Some(i) => { self.data[i] = GridObject::SNAKE; },
-				None => { continue; }
+	pub fn set_snakes(&mut self, snakes: Vec<Vec<Point>>) {
+		for (p, snake) in snakes.iter().enumerate() {
+			for point in snake.iter() {
+				match self.get_index(&point) {
+					Some(i) => { self.data[i] = GridObject::SNAKE(p); },
+					None => { continue; }
+				}
 			}
 		}
+	}
+}
+
+impl fmt::Display for GameGrid {
+	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+		let mut grid_text = String::new();
+		for (i, cell) in self.data.iter().enumerate() {
+			grid_text.push_str(&format!("{}", cell));
+			if (i + 1) % self.width == 0 {
+				grid_text.push_str("\n");
+			}
+		}
+		write!(f, "{}", grid_text)
 	}
 }
 

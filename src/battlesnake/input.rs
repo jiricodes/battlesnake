@@ -52,18 +52,22 @@ impl GameInfo {
 		self.you.head
 	}
 
-	pub fn get_snake_bodies(&self) -> Vec<Point> {
-		let mut snakes_bodies = Vec::new();
+	pub fn get_snake_bodies(&self) -> Vec<Vec<Point>> {
+		let mut snakes_bodies: Vec<Vec<Point>> = Vec::new();
 		// add snakes
 		for snake in self.board.snakes.iter() {
-				let mut to_add = snake.body.to_vec();
-				snakes_bodies.append(&mut to_add);
+				let to_add = snake.body.to_vec();
+				snakes_bodies.push(to_add);
 		}
 		snakes_bodies
 	}
 
 	pub fn get_my_id(&self) -> &str {
 		self.you.id.as_ref()
+	}
+
+	pub fn get_turn(&self) -> i32 {
+		self.turn
 	}
 }
 
@@ -117,4 +121,5 @@ mod test {
 		let gameinfo = GameInfo::new(&data);
 		dbg!(gameinfo);
 	}
+	
 }

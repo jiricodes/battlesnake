@@ -44,10 +44,12 @@ impl Move {
 		grid.set_snakes(gameinfo.get_snake_bodies());
 
 		// Log my snakes id
+		println!("Turn: {}", gameinfo.get_turn());
 		println!("Snake ID: {}", gameinfo.get_my_id());
 		// Get my snake's head
 		let head = gameinfo.get_my_head();
 		println!("Head at: {}", head);
+		println!("{}", grid);
 
 
 		// Make this smarter lol, too tired
