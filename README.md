@@ -23,3 +23,4 @@ sudo chmod +x ./install
 sudo ./install auto
 curl https://sh.rustup.rs -sSf | sh -s -- -y
 ```
+
