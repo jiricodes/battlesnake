@@ -1,6 +1,13 @@
 # battlesnake
 Leisure project - Rust API for battlesnake.com
 
+# Used farmworks
+```
+Rust
+ - rocket
+ - serde
+```
+
 # AWS EC deployment
 ## Deployment custom script
 Installs aws-codedeploy and rust when instance launched

@@ -56,4 +56,8 @@ impl Move {
 	pub fn as_option_string(input: &str) -> Option<String> {
 		Some(serde_json::to_string(&Move::new(&input)).unwrap())
 	}
+
+	pub fn get_json_string(&self) -> String {
+		serde_json::to_string(self).unwrap()
+	}
 }

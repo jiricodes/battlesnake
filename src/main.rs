@@ -1,64 +1,40 @@
-#![allow(dead_code)]
+#![feature(proc_macro_hygiene, decl_macro)]
 
-use std::{env, fs, path::Path};
+#[macro_use] extern crate rocket;
+use rocket::response::content::Json;
+use rocket::http::Status;
 
-mod server;
-use server::Server;
-
-mod request_handler;
-use request_handler::RequestHandler;
-
-mod http;
 mod battlesnake;
+use battlesnake::SnakeProps;
+use battlesnake::Move;
 
-use clap::{App, Arg};
+#[get("/")]
+fn index() -> Json<String> {
+	let snake = SnakeProps::new();
+	// let datastr = snake.get_string();
+	Json(snake.get_string())
+}
+
+#[post("/move", data = "<data>")]
+fn domove(data: String) -> Json<String> {
+	println!("Received Move");
+	let movement = Move::new(&data);
+	dbg!(&movement);
+	Json(movement.get_json_string())
+}
+
+#[post("/start")]
+fn start() -> Status {
+	println!("Received START");
+	Status::Ok
+}
+
+#[post("/end")]
+fn end() -> Status {
+	println!("Received END");
+	Status::Ok
+}
 
 fn main() {
-    let arguments = App::new("http_server")
-        .arg(
-            Arg::with_name("default_path")
-                .short("d")
-                .long("path")
-                .takes_value(true)
-                .help("Path to public directory"),
-        )
-        .arg(
-            Arg::with_name("ip_address")
-                .short("ip")
-                .long("ip-address")
-                .takes_value(true)
-                .help("Listen IP address"),
-        )
-        .arg(
-            Arg::with_name("port")
-                .short("p")
-                .long("port")
-                .takes_value(true)
-                .help("Listen port"),
-        )
-        .get_matches();
-    // set default path - at compile time use Cargo.toml location + /public
-    let default_path = format!("{}/public", env!("CARGO_MANIFEST_DIR"));
-    let public_path = if arguments.is_present("default_path") {
-        arguments.value_of("default_path").unwrap().to_string()
-    } else {
-        env::var("PUBLIC_PATH").unwrap_or(default_path)
-    };
-    dbg!(&public_path);
-    if !Path::new(&public_path).exists() {
-        eprintln!("Given path doesn't exist");
-        return;
-    }
-    let absolute_path = fs::canonicalize(&public_path)
-        .unwrap()
-        .into_os_string()
-        .into_string()
-        .unwrap();
-    dbg!(&absolute_path);
-    let ip = arguments.value_of("ip_address").unwrap_or("0.0.0.0");
-    let port = arguments.value_of("port").unwrap_or("6969");
-    // Initialize Server
-    let server: Server = Server::new(format!("{}:{}", ip, port));
-    // Run server
-    server.run(RequestHandler::new(absolute_path));
+	rocket::ignite().mount("/", routes![index, start, end, domove]).launch();
 }

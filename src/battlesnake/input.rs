@@ -2,15 +2,8 @@ use serde::{Serialize, Deserialize};
 use super::point::Point;
 
 #[derive(Serialize, Deserialize, Debug)]
-struct Ruleset {
-	name: String,
-	version: String,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
 struct GameData {
 	id: String,
-	ruleset: Ruleset,
 	timeout: i32,
 }
 
@@ -29,7 +22,7 @@ struct Snake {
 	name: String,
 	health: i32,
 	body: Vec<Point>,
-	// latency: i32,
+	// latency: String,
 	head: Point,
 	length: i32,
 	shout: String,
