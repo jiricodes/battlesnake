@@ -22,10 +22,20 @@ pub struct Move {
 
 impl Move {
 	pub fn new(input: &str) -> Self {
+		// Parse game information
 		let gameinfo = GameInfo::new(&input);
+
+		// Create grid and fill it with snake bodies
 		let mut grid = GameGrid::new(gameinfo.get_board_dimensions());
 		grid.set_snakes(gameinfo.get_snake_bodies());
+
+		// Log my snakes id
+		println!("Snake ID: {}", gameinfo.get_my_id());
+		// Get my snake's head
 		let head = gameinfo.get_my_head();
+		println!("Head at: {}", head);
+
+
 		// Make this smarter lol, too tired
 		let mut movement = Movement::Right;
 		let val = grid.get_value(&head.get_right());

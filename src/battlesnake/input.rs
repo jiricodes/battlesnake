@@ -68,6 +68,10 @@ impl GameInfo {
 		}
 		snakes_bodies
 	}
+
+	pub fn get_my_id(&self) -> &str {
+		self.you.id.as_ref()
+	}
 }
 
 #[cfg(test)]

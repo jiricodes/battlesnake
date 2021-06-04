@@ -34,7 +34,7 @@ impl Server {
             match listener.accept() {
                 Ok((mut stream, _)) => {
                     println!("");
-					dbg!("\n\n");
+					eprintln!("\n");
                     let mut buffer: [u8; 4096] = [0; 4096];
                     match stream.read(&mut buffer) {
                         Ok(_) => {

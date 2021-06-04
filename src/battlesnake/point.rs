@@ -1,4 +1,5 @@
 use serde::{Serialize, Deserialize};
+use std::fmt;
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone)]
 pub struct Point {
@@ -50,4 +51,10 @@ impl Point {
 		}
 	}
 
+}
+
+impl fmt::Display for Point {
+	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{{{}, {}}}", self.x, self.y)
+    }
 }
