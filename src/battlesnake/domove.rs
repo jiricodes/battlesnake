@@ -3,6 +3,8 @@ use super::input::GameInfo;
 use super::grid::GameGrid;
 use super::grid::GridObject;
 
+use std::fmt;
+
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
 #[serde(rename_all(serialize = "lowercase", deserialize = "lowercase"))]
 pub enum Movement {
@@ -10,6 +12,18 @@ pub enum Movement {
     Left,
     Up,
     Down,
+}
+
+impl fmt::Display for Movement {
+	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+		let move_text = match self {
+			Movement::Right => "right",
+			Movement::Left => "left",
+			Movement::Up => "up",
+			Movement::Down => "down",
+		};
+        write!(f, "{}", move_text)
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -60,4 +74,15 @@ impl Move {
 	pub fn get_json_string(&self) -> String {
 		serde_json::to_string(self).unwrap()
 	}
+}
+
+impl fmt::Display for Move {
+	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+		let shout = if self.shout.is_some() {
+			self.shout.as_ref().unwrap()
+		} else {
+			""
+		};
+        write!(f, "{} | {}", self.movement, shout)
+    }
 }

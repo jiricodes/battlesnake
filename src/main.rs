@@ -10,6 +10,7 @@ use battlesnake::Move;
 
 #[get("/")]
 fn index() -> Json<String> {
+	println!("\nReceived Index");
 	let snake = SnakeProps::new();
 	// let datastr = snake.get_string();
 	Json(snake.get_string())
@@ -17,9 +18,9 @@ fn index() -> Json<String> {
 
 #[post("/move", data = "<data>")]
 fn domove(data: String) -> Json<String> {
-	println!("Received Move");
+	println!("\nReceived Move");
 	let movement = Move::new(&data);
-	dbg!(&movement);
+	println!("Move: {}", &movement);
 	Json(movement.get_json_string())
 }
 
