@@ -1,45 +1,57 @@
-#![feature(proc_macro_hygiene, decl_macro)]
+#[macro_use]
+extern crate actix_web;
 
-#[macro_use] extern crate rocket;
-use rocket::response::content::Json;
-use rocket::http::Status;
+use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
+
+use std::io;
 
 mod battlesnake;
 use battlesnake::SnakeProps;
 use battlesnake::Move;
 
-use std::time::Instant;
+// use std::time::Instant;
 
 #[get("/")]
-fn index() -> Json<String> {
+async fn index() -> impl Responder {
 	println!("\nReceived Index");
 	let snake = SnakeProps::new();
 	// let datastr = snake.get_string();
-	Json(snake.get_string())
+	HttpResponse::Ok().body(snake.get_string())
 }
 
-#[post("/move", data = "<data>")]
-fn domove(data: String) -> Json<String> {
-	let start = Instant::now();
+#[post("/move")]
+async fn domove(data: String) -> impl Responder {
+	// let start: Instant = Instant::now();
 	println!("\nReceived Move");
 	let movement = Move::new(&data);
 	println!("Move: {}", &movement);
-	println!("----\nAsnwered in {}\n---\n", start.elapsed().as_millis());
-	Json(movement.get_json_string())
+	// println!("----\nAsnwered in {}\n---\n", start.elapsed().as_millis());
+	HttpResponse::Ok().body(movement.get_json_string())
 }
 
 #[post("/start")]
-fn start() -> Status {
+async fn start() -> impl Responder {
 	println!("Received START");
-	Status::Ok
+	HttpResponse::Ok()
 }
 
 #[post("/end")]
-fn end() -> Status {
+async fn end() -> impl Responder {
 	println!("Received END");
-	Status::Ok
+	HttpResponse::Ok()
 }
 
-fn main() {
-	rocket::ignite().mount("/", routes![index, start, end, domove]).launch();
+#[actix_web::main]
+async fn main() -> io::Result<()> {
+
+    HttpServer::new(|| {
+        App::new()
+            .service(index)
+            .service(domove)
+            .service(start)
+            .service(end)
+    })
+    .bind("0.0.0.0:6969")?
+    .run()
+    .await
 }

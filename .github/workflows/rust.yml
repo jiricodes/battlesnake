@@ -15,10 +15,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Install Latest Nightly
+    - name: Install Latest Stable
       uses: actions-rs/toolchain@v1
       with:
-        toolchain: nightly
+        toolchain: stable
         override: true
     - name: Build
       uses: actions-rs/cargo@v1
