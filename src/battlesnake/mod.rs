@@ -1,11 +1,10 @@
-pub use snake::SnakeProps;
 pub use domove::Move;
-pub use point::Point;
 pub use input::GameInfo;
+pub use point::Point;
+pub use snake::SnakeProps;
 
-
-pub mod snake;
 pub mod domove;
-pub mod point;
-pub mod input;
 pub mod grid;
+pub mod input;
+pub mod point;
+pub mod snake;
