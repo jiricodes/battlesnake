@@ -52,7 +52,7 @@ impl AstarNode {
 
     // returns complete path, without starting node
     pub fn get_path(&self) -> Vec<Point> {
-        let mut path: Vec<Point> = self.parents.to_vec();
+        let mut path: Vec<Point> = self.parents[1..].to_vec();
         path.push(self.point);
         path
     }
@@ -156,11 +156,9 @@ impl<'g> Astar<'g> {
     ) -> Option<Vec<Point>> {
         let mut queue = AstarQueue::new();
         queue.enqueue(AstarNode::new(start));
-        let mut dbg_len: usize = 0;
         while queue.len() > 0 {
             let current = queue.dequeue().unwrap();
             if current.is_end(&end) {
-                dbg!(dbg_len);
                 return Some(current.get_path());
             }
             let children = current.get_children(grid, &heur);
@@ -168,9 +166,6 @@ impl<'g> Astar<'g> {
                 if !queue.point_already_reached(child, current.get_cost() + 1) {
                     queue.enqueue(current.extend_with_child(child, current.get_cost() + 1 + *h));
                 }
-            }
-            if queue.len() > dbg_len {
-                dbg_len = queue.len();
             }
         }
         None

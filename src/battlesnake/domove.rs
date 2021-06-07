@@ -1,8 +1,11 @@
+use super::astar::Astar;
 use super::grid::GameGrid;
 use super::grid::GridObject;
+use super::heuristic::{HeurMethod, Heuristic};
 use super::input::GameInfo;
-use serde::{Deserialize, Serialize};
+use super::point::Point;
 
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
@@ -53,25 +56,34 @@ impl Move {
         println!("Head at: {}", head);
         let my_len = gameinfo.get_my_length();
         println!("Length: {}", my_len);
-        // Check closest FOOD
-        let closest_food = head.find_closest(food);
-        println!("Closest Food: {}", closest_food);
         println!("{}", grid);
 
         // If length is under 8 the snake cannot trap itself
         // so lets just head towards closest food
+        let mut move_point = Point::new(0, 0);
+        let mut path = None;
+        for apple in &food {
+            path = Astar::solve(head, *apple, &grid, Heuristic::new(HeurMethod::Manhattan));
+            if path.is_some() {
+                break;
+            }
+        }
+        if path.is_some() {
+            move_point = path.unwrap()[0];
+        } else {
+            println!("A* found no path, moving first free space");
+            // Otherwise
+            // if solo game -> we do hamilton
+            // else -> super trooper algo?
 
-        // Otherwise
-        // if solo game -> we do hamilton
-        // else -> super trooper algo?
-
-        // Supersimple, based on empty
-        let mut move_point = head.get_right();
-        let turns = head.get_neighbours();
-        for point in &turns {
-            let val = grid.get_value(point);
-            if val == GridObject::EMPTY || val == GridObject::FOOD {
-                move_point = *point;
+            // Supersimple, based on empty
+            move_point = head.get_right();
+            let turns = head.get_neighbours();
+            for point in &turns {
+                let val = grid.get_value(point);
+                if val == GridObject::EMPTY || val == GridObject::FOOD {
+                    move_point = *point;
+                }
             }
         }
 
