@@ -89,6 +89,19 @@ impl GameGrid {
             }
         }
     }
+
+    pub fn set_food(&mut self, food: &Vec<Point>) {
+        for p in food {
+            match self.get_index(&p) {
+                Some(i) => {
+                    self.data[i] = GridObject::FOOD;
+                }
+                None => {
+                    continue;
+                }
+            }
+        }
+    }
 }
 
 impl fmt::Display for GameGrid {
