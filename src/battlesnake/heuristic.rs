@@ -2,33 +2,37 @@
 
 use super::point::Point;
 
+#[derive(Clone, Copy, Debug)]
+pub enum HeurMethod {
+	Manhattan,
+	Euclidean
+}
+
 pub struct Heuristic {
-    height: usize,
-    width: usize,
-    start: Point,
-    data: Vec<i32>,
+	method: HeurMethod,
+    pub get_func: fn(&Point, &Point) -> f32,
 }
 
 impl Heuristic {
-    pub fn manhattan(height: usize, width: usize, start: Point) -> Self {
-        let mut data: Vec<i32> = Vec::with_capacity(height * width);
-        for i in 0..height * width {
-            let x = i % width;
-            let y = i / height;
-            let val = (start.get_x() - x as i32).abs() + (start.get_y() - y as i32).abs();
-            data.push(val);
-        }
-        Self {
-            height,
-            width,
-            start,
-            data,
-        }
+	pub fn new(heur_method: HeurMethod) -> Self {
+		Self {
+			method: heur_method,
+			get_func: match heur_method {
+				HeurMethod::Manhattan => Self::manhattan,
+				HeurMethod::Euclidean => Self::euclidean,
+			}
+		}
+	}
+    fn manhattan(start: &Point, end: &Point) -> f32 {
+        start.manhattan_distance(end) as f32
     }
 
-	pub fn get_value(&self, point: &Point) -> i32 {
-		let i = point.get_y() as usize * self.width + point.get_x() as usize;
-		self.data[i]
+	fn euclidean(start: &Point, end: &Point) -> f32 {
+        start.distance(end)
+    }
+
+	pub fn get_value(&self, start: &Point, end: &Point) -> f32 {
+		(self.get_func)(start, end)
 	}
 }
 
@@ -38,35 +42,41 @@ mod test {
 
     #[test]
     fn manhattan_00() {
+		let heur = Heuristic::new(HeurMethod::Manhattan);
         let h: usize = 5;
         let w: usize = 5;
         let start = Point::new(0, 0);
-        let result = Heuristic::manhattan(h, w, start);
         let expected: Vec<i32> = vec![
             0, 1, 2, 3, 4, 1, 2, 3, 4, 5, 2, 3, 4, 5, 6, 3, 4, 5, 6, 7, 4, 5, 6, 7, 8,
         ];
-        assert!(result.data == expected);
+		for (i, val) in expected.iter().enumerate() {
+			let end = Point::new((i % w) as i32, (i / h) as i32);
+			assert!(expected[i] as f32 == heur.get_value(&start, &end));
+		}
     }
     #[test]
     fn manhattan_inner() {
+		let heur = Heuristic::new(HeurMethod::Manhattan);
         let h: usize = 10;
         let w: usize = 10;
         let start = Point::new(7, 3);
-        let result = Heuristic::manhattan(h, w, start);
         let expected: Vec<i32> = vec![
             10, 9, 8, 7, 6, 5, 4, 3, 4, 5, 9, 8, 7, 6, 5, 4, 3, 2, 3, 4, 8, 7, 6, 5, 4, 3, 2, 1, 2,
             3, 7, 6, 5, 4, 3, 2, 1, 0, 1, 2, 8, 7, 6, 5, 4, 3, 2, 1, 2, 3, 9, 8, 7, 6, 5, 4, 3, 2,
             3, 4, 10, 9, 8, 7, 6, 5, 4, 3, 4, 5, 11, 10, 9, 8, 7, 6, 5, 4, 5, 6, 12, 11, 10, 9, 8,
             7, 6, 5, 6, 7, 13, 12, 11, 10, 9, 8, 7, 6, 7, 8,
         ];
-        assert!(result.data == expected);
+        for (i, val) in expected.iter().enumerate() {
+			let end = Point::new((i % w) as i32, (i / h) as i32);
+			assert!(expected[i] as f32 == heur.get_value(&start, &end));
+		}
     }
     #[test]
     fn manhattan_outter() {
+		let heur = Heuristic::new(HeurMethod::Manhattan);
         let h: usize = 10;
         let w: usize = 10;
         let start = Point::new(-13, 19);
-        let result = Heuristic::manhattan(h, w, start);
         let expected: Vec<i32> = vec![
             32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 30, 31,
             32, 33, 34, 35, 36, 37, 38, 39, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 28, 29, 30, 31,
@@ -74,6 +84,9 @@ mod test {
             32, 33, 34, 35, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 24, 25, 26, 27, 28, 29, 30, 31,
             32, 33, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32,
         ];
-        assert!(result.data == expected);
+        for (i, val) in expected.iter().enumerate() {
+			let end = Point::new((i % w) as i32, (i / h) as i32);
+			assert!(expected[i] as f32 == heur.get_value(&start, &end));
+		}
     }
 }

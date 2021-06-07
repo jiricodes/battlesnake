@@ -40,7 +40,7 @@ impl AstarNode {
 		let neighbours = self.point.get_neighbours();
 		for p in &neighbours {
 			if grid.is_accessible(p) && !self.parents.contains(p){
-				result.push((heur.get_value(p), *p));
+				result.push((heur.get_value(&self.point ,p) as i32, *p));
 			}
 		}
 		result
@@ -55,6 +55,15 @@ impl AstarNode {
 		let mut path: Vec<Point> = self.parents.to_vec();
 		path.push(self.point);
 		path
+	}
+
+	pub fn extend_with_child(&self, child: &Point, cost: i32) -> Self {
+		let mut new = self.clone();
+		new.parents.push(self.point);
+		new.point = *child;
+		new.cost += cost;
+		dbg!(&new);
+		new
 	}
 }
 
@@ -127,9 +136,31 @@ impl<'g> Astar<'g> {
 				return Some(current.get_path());
 			}
 			let children = current.get_children(grid, &heur);
-
-
+			for (cost, child) in &children {
+				queue.enqueue(current.extend_with_child(child, *cost));
+			}
+			dbg!(queue.len());
+			if queue.len() > 11 * 11 {
+				break ;
+			}
 		}
 		None
+	}
+}
+
+#[cfg(test)]
+mod test {
+	use super::*;
+	use super::super::heuristic::HeurMethod;
+
+	#[test]
+	fn basic_manhattan() {
+		let start = Point::new(0, 0);
+		let end = Point::new(9, 9);
+		let grid = GameGrid::new((10, 10));
+		let heur = Heuristic::new(HeurMethod::Manhattan);
+		let path = Astar::solve(start, end, &grid, heur);
+		assert!(path != None);
+		dbg!(path);
 	}
 }
