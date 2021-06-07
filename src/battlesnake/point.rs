@@ -4,7 +4,7 @@ use std::ops::{Add, Sub};
 
 use super::domove::Movement;
 
-#[derive(Serialize, Deserialize, Debug, Copy, Clone, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Copy, Clone, PartialEq, Hash, Eq)]
 pub struct Point {
     x: i32,
     y: i32,
@@ -66,6 +66,11 @@ impl Point {
     pub fn distance(&self, other: &Self) -> f32 {
         self.distance_squared(other).sqrt()
     }
+
+	pub fn manhattan_distance(&self, other: &Self) -> i32 {
+		let point = *other - *self;
+		point.x.abs() + point.y.abs()
+	}
 
     pub fn find_closest(&self, others: Vec<Self>) -> Self {
         let mut dist = f32::MAX;

@@ -25,6 +25,11 @@ impl Heuristic {
             data,
         }
     }
+
+	pub fn get_value(&self, point: &Point) -> i32 {
+		let i = point.get_y() as usize * self.width + point.get_x() as usize;
+		self.data[i]
+	}
 }
 
 #[cfg(test)]
