@@ -67,10 +67,10 @@ impl Point {
         self.distance_squared(other).sqrt()
     }
 
-	pub fn manhattan_distance(&self, other: &Self) -> i32 {
-		let point = *other - *self;
-		point.x.abs() + point.y.abs()
-	}
+    pub fn manhattan_distance(&self, other: &Self) -> i32 {
+        let point = *other - *self;
+        point.x.abs() + point.y.abs()
+    }
 
     pub fn find_closest(&self, others: Vec<Self>) -> Self {
         let mut dist = f32::MAX;

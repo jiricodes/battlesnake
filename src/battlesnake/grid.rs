@@ -67,10 +67,10 @@ impl GameGrid {
         }
     }
 
-	pub fn is_accessible(&self, pos: &Point) -> bool {
-		let val = self.get_value(pos);
-		val == GridObject::EMPTY || val == GridObject::FOOD
-	}
+    pub fn is_accessible(&self, pos: &Point) -> bool {
+        let val = self.get_value(pos);
+        val == GridObject::EMPTY || val == GridObject::FOOD
+    }
 
     fn is_in_bounds(&self, pos: &Point) -> bool {
         0 <= pos.get_x()
