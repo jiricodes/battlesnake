@@ -7,6 +7,7 @@
 
 ### [Snake Game AI: Movement Rating Functions and Evolutionary Algorithm-based Optimization](https://ieeexplore.ieee.org/document/7880166)
 
+### [Snake: Hamiltonian Cycle](https://kychin.netlify.app/snake-blog/hamiltonian-cycle/)
 
 ## Unsorted
 [Building an AI-powered Battlesnake with reinforcement learning on Amazon SageMaker](https://aws.amazon.com/blogs/machine-learning/building-an-ai-powered-battlesnake-with-reinforcement-learning-on-amazon-sagemaker/)
