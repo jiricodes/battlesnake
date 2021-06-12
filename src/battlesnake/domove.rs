@@ -42,9 +42,10 @@ impl Move {
         // Parse game information
         let gameinfo = GameInfo::new(&input);
 
-        // Create grid and fill it with snake bodies and food
+        // Create grid and fill it with snake bodies, hazard and food - Should be split
         let mut grid = GameGrid::new(gameinfo.get_board_dimensions());
         grid.set_snakes(gameinfo.get_snake_bodies());
+        grid.set_hazards(&gameinfo.get_extended_hazards());
         let food = gameinfo.get_food();
         grid.set_food(&food);
 
@@ -66,6 +67,16 @@ impl Move {
             path = Astar::solve(head, *apple, &grid, Heuristic::new(HeurMethod::Manhattan));
             if path.is_some() {
                 break;
+            }
+        }
+        // Run the algo again, but ignore hazard
+        if path.is_none() {
+            grid.ignore_hazard();
+            for apple in &food {
+                path = Astar::solve(head, *apple, &grid, Heuristic::new(HeurMethod::Manhattan));
+                if path.is_some() {
+                    break;
+                }
             }
         }
         if path.is_some() {

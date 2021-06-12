@@ -10,6 +10,15 @@ pub enum GridObject {
     OUTOFBOUND,
 }
 
+impl GridObject {
+    pub fn is_snake(&self) -> bool {
+        match self {
+            GridObject::SNAKE(_) => true,
+            _ => false,
+        }
+    }
+}
+
 impl fmt::Display for GridObject {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let symbol = match self {
@@ -37,6 +46,7 @@ pub struct GameGrid {
     height: usize,
     width: usize,
     data: Vec<GridObject>,
+    ignore_hazard: bool,
 }
 
 impl GameGrid {
@@ -45,6 +55,7 @@ impl GameGrid {
             height: dimensions.0,
             width: dimensions.1,
             data: vec![GridObject::EMPTY; dimensions.0 * dimensions.1],
+            ignore_hazard: false
         }
     }
 
@@ -69,7 +80,7 @@ impl GameGrid {
 
     pub fn is_accessible(&self, pos: &Point) -> bool {
         let val = self.get_value(pos);
-        val == GridObject::EMPTY || val == GridObject::FOOD
+        val == GridObject::EMPTY || val == GridObject::FOOD || (val == GridObject::HAZARD && self.ignore_hazard)
     }
 
     fn is_in_bounds(&self, pos: &Point) -> bool {
@@ -107,6 +118,25 @@ impl GameGrid {
             }
         }
     }
+
+    pub fn set_hazards(&mut self, hazard: &Vec<Point>) {
+        for p in hazard {
+            match self.get_index(&p) {
+                Some(i) => {
+                    if !self.data[i].is_snake() {
+                        self.data[i] = GridObject::HAZARD;
+                    }
+                }
+                None => {
+                    continue;
+                }
+            }
+        }
+    }
+
+    pub fn ignore_hazard(&mut self) {
+        self.ignore_hazard = true;
+    } 
 }
 
 impl fmt::Display for GameGrid {

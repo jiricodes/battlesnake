@@ -15,10 +15,10 @@ impl SnakeProps {
         Self {
             apiversion: String::from("1"),
             author: String::from("jiricodes"),
-            color: String::from("#EE82EE"),
-            head: String::from("silly"),
-            tail: String::from("hook"),
-            version: String::from("0.0.0"),
+            color: String::from("#622BAA"),
+            head: String::from("evil"),
+            tail: String::from("rattle"),
+            version: String::from("0.0.1"),
         }
     }
 

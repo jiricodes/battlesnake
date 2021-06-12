@@ -67,6 +67,25 @@ impl GameInfo {
         self.board.food.clone()
     }
 
+    pub fn get_hazards(&self) -> &Vec<Point> {
+        &self.board.hazards
+    }
+
+    pub fn get_extended_hazards(&self) -> Vec<Point> {
+        let mut result = self.board.hazards.clone();
+        for snake in self.board.snakes.iter() {
+            if snake.length >= self.you.length {
+                let ngbs = snake.head.get_neighbours();
+                for n in &ngbs {
+                    if *n != snake.body[1] {
+                        result.push(*n);
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
     pub fn get_my_id(&self) -> &str {
         self.you.id.as_ref()
     }

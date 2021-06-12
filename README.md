@@ -24,3 +24,11 @@ sudo ./install auto
 curl https://sh.rustup.rs -sSf | sh -s -- -y
 ```
 
+# TO-DO
+## ASAP
+- [ ] game logging
+- [x] avoid _Hazard Sauce_ completely for now, unless no path found
+- [ ] add hazard fields around heads of longer snakes
+
+
+## IDEAS
