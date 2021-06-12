@@ -74,7 +74,7 @@ impl GameInfo {
     pub fn get_extended_hazards(&self) -> Vec<Point> {
         let mut result = self.board.hazards.clone();
         for snake in self.board.snakes.iter() {
-            if snake.length >= self.you.length {
+            if snake.length >= self.you.length && snake.id != self.you.id {
                 let ngbs = snake.head.get_neighbours();
                 for n in &ngbs {
                     if *n != snake.body[1] {
