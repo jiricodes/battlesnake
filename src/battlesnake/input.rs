@@ -41,6 +41,7 @@ impl GameInfo {
     pub fn new(data: &str) -> Self {
         dbg!(&data);
         let new_object: GameInfo = serde_json::from_str(data).unwrap();
+        dbg!(&new_object);
         return new_object;
     }
 
