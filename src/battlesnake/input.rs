@@ -39,7 +39,7 @@ pub struct GameInfo {
 
 impl GameInfo {
     pub fn new(data: &str) -> Self {
-        dbg!(&data);
+        // dbg!(&data);
         let new_object: GameInfo = serde_json::from_str(data).unwrap();
         dbg!(&new_object);
         return new_object;
@@ -63,12 +63,20 @@ impl GameInfo {
         snakes_bodies
     }
 
+    pub fn get_food(&self) -> Vec<Point> {
+        self.board.food.clone()
+    }
+
     pub fn get_my_id(&self) -> &str {
         self.you.id.as_ref()
     }
 
     pub fn get_turn(&self) -> i32 {
         self.turn
+    }
+
+    pub fn get_my_length(&self) -> i32 {
+        self.you.length
     }
 }
 

@@ -1,8 +1,11 @@
+use super::astar::Astar;
 use super::grid::GameGrid;
 use super::grid::GridObject;
+use super::heuristic::{HeurMethod, Heuristic};
 use super::input::GameInfo;
-use serde::{Deserialize, Serialize};
+use super::point::Point;
 
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
@@ -39,39 +42,54 @@ impl Move {
         // Parse game information
         let gameinfo = GameInfo::new(&input);
 
-        // Create grid and fill it with snake bodies
+        // Create grid and fill it with snake bodies and food
         let mut grid = GameGrid::new(gameinfo.get_board_dimensions());
         grid.set_snakes(gameinfo.get_snake_bodies());
+        let food = gameinfo.get_food();
+        grid.set_food(&food);
 
         // Log my snakes id
         println!("Turn: {}", gameinfo.get_turn());
         println!("Snake ID: {}", gameinfo.get_my_id());
-        // Get my snake's head
+        // Get my snake's head and length
         let head = gameinfo.get_my_head();
         println!("Head at: {}", head);
+        let my_len = gameinfo.get_my_length();
+        println!("Length: {}", my_len);
         println!("{}", grid);
 
-        // Make this smarter lol, too tired
-        let mut movement = Movement::Right;
-        let val = grid.get_value(&head.get_right());
-        if val == GridObject::EMPTY || val == GridObject::FOOD {
-            movement = Movement::Right
+        // If length is under 8 the snake cannot trap itself
+        // so lets just head towards closest food
+        let mut move_point = Point::new(0, 0);
+        let mut path = None;
+        for apple in &food {
+            path = Astar::solve(head, *apple, &grid, Heuristic::new(HeurMethod::Manhattan));
+            if path.is_some() {
+                break;
+            }
         }
-        let val = grid.get_value(&head.get_left());
-        if val == GridObject::EMPTY || val == GridObject::FOOD {
-            movement = Movement::Left
+        if path.is_some() {
+            move_point = path.unwrap()[0];
+        } else {
+            println!("A* found no path, moving first free space");
+            // Otherwise
+            // if solo game -> we do hamilton
+            // else -> super trooper algo?
+
+            // Supersimple, based on empty
+            move_point = head.get_right();
+            let turns = head.get_neighbours();
+            for point in &turns {
+                let val = grid.get_value(point);
+                if val == GridObject::EMPTY || val == GridObject::FOOD {
+                    move_point = *point;
+                }
+            }
         }
-        let val = grid.get_value(&head.get_up());
-        if val == GridObject::EMPTY || val == GridObject::FOOD {
-            movement = Movement::Up
-        }
-        let val = grid.get_value(&head.get_down());
-        if val == GridObject::EMPTY || val == GridObject::FOOD {
-            movement = Movement::Down
-        }
+
         // selects move that is either to empty or food cell
         Self {
-            movement: movement,
+            movement: head.get_neighbour_direction(move_point).unwrap(),
             shout: None,
         }
     }
