@@ -6,11 +6,15 @@ use super::point::Point;
 pub enum HeurMethod {
     Manhattan,
     Euclidean,
+    Battlesnake,
 }
 
 pub struct Heuristic {
     method: HeurMethod,
     pub get_func: fn(&Point, &Point) -> f32,
+    width: usize,
+    height: usize,
+    data: Vec<f32>,
 }
 
 impl Heuristic {
@@ -20,7 +24,11 @@ impl Heuristic {
             get_func: match heur_method {
                 HeurMethod::Manhattan => Self::manhattan,
                 HeurMethod::Euclidean => Self::euclidean,
+                HeurMethod::Battlesnake => Self::battlesnake,
             },
+            width: 0,
+            height: 0,
+            data: Vec::new(),
         }
     }
     fn manhattan(start: &Point, end: &Point) -> f32 {
@@ -30,6 +38,15 @@ impl Heuristic {
     fn euclidean(start: &Point, end: &Point) -> f32 {
         start.distance(end)
     }
+
+    fn battlesnake_init(&self) {
+        unimplemented!();
+    }
+
+    fn battlesnake(start: &Point, end: &Point) -> f32 {
+        unimplemented!();
+    }
+
 
     pub fn get_value(&self, start: &Point, end: &Point) -> f32 {
         (self.get_func)(start, end)

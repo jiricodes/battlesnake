@@ -36,8 +36,9 @@ async fn start() -> impl Responder {
 }
 
 #[post("/end")]
-async fn end() -> impl Responder {
+async fn end(data: String) -> impl Responder {
     println!("Received END");
+    dbg!(data);
     HttpResponse::Ok()
 }
 
