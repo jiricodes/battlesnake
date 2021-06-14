@@ -1,5 +1,7 @@
 #! /bin/bash
 
+num_games=20
+
 #args
 if [ "$1" == "-q" ]
 then
@@ -16,8 +18,6 @@ rules_cmd="battlesnake play -W 11 -H 11 --name ${s1_name} --url http://127.0.0.1
 
 DIR=/home/jiricodes/Documents/battlesnake/
 snake_bin=${DIR}Cargo.toml
-
-num_games=5
 
 #utils
 avg_turns=0
@@ -51,10 +51,9 @@ do
     echo -ne "\nGame $i " >> $testsum
     (cd ${rules_dir}; ./${rules_cmd} 2>$tmplog)
     t=$(cat $tmplog | grep DONE | awk '{ print $7 }')
-    ttl=$(( ${ttl} + $t ))
     w=$(cat $tmplog | grep DONE | awk '{ print $9 }')
     reason=""
-    echo "[ $t ]" >> $testsum
+    
     if [ "$w" == "$s1_name" ]
     then
         a_wins=$(( ${a_wins} + 1 ))
@@ -74,11 +73,16 @@ do
             reason="${s1_name}: "$(cat $tmplog | tail -n 17 | head -n 6 | grep ${s1_name} | awk '{ print $(NF-1) }')"\n""${s2_name}: "$(cat $tmplog | tail -n 17 | head -n 6 | grep ${s2_name} | awk '{ print $(NF-1) }') 
         else
             errors=$(( ${errors} + 1 ))
-            cat $tmplog | tail -n 30 >> $glog
+            cat $tmplog | tail -n 33 >> $glog
             reason=$(cat $tmplog | grep panic)
+            t=$(cat $tmplog | tail -n 33 | head -n 1 | awk '{ print $(NF) }')
         fi
     fi
+    echo "[ $t ]" >> $testsum
+    printf -v ti '%d\n' $t 2>/dev/null
+    ttl=$(( ${ttl} + ${ti} ))
     echo -e "${reason}" >> $testsum
+    echo "" >> $glog
 done
 
 avg_turns=$(( ${ttl} / ${num_games} ))
