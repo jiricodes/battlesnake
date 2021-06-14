@@ -1,7 +1,7 @@
 //! Heuristic module to support modularity of A* search algo
 
-use super::point::Point;
 use super::grid::{GameGrid, GridObject};
+use super::point::Point;
 
 #[derive(Clone, Copy, Debug)]
 pub enum HeurMethod {
@@ -40,7 +40,21 @@ impl Heuristic {
         start.distance(end)
     }
 
-    pub fn battlesnake_init(&mut self, width: usize, height: usize, hazards: &Vec<Point>, collision: &Vec<Point>, health: i32 ,target: &Point) {
+    fn is_in_bounds(&self, p: &Point) -> bool {
+        let x = p.get_x();
+        let y = p.get_y();
+        x > 0 && x < self.width as i32 && y > 0 && y < self.height as i32
+    }
+
+    pub fn battlesnake_init(
+        &mut self,
+        width: usize,
+        height: usize,
+        hazards: &Vec<Point>,
+        collision: &Vec<Point>,
+        health: i32,
+        target: &Point,
+    ) {
         self.data.clear();
         self.width = width;
         self.height = height;
@@ -51,21 +65,24 @@ impl Heuristic {
             self.data.push(v as f32);
         }
         for p in hazards {
-            let i = (p.get_y() as usize * self.width) + p.get_x() as usize;
-            self.data[i] += 15.0;
+            if self.is_in_bounds(p) {
+                let i = (p.get_y() as usize * self.width) + p.get_x() as usize;
+                self.data[i] += 15.0;
+            }
         }
         for p in collision {
-            let i = (p.get_y() as usize * self.width) + p.get_x() as usize;
-            self.data[i] += health as f32;
+            if self.is_in_bounds(p) {
+                let i = (p.get_y() as usize * self.width) + p.get_x() as usize;
+                self.data[i] += health as f32;
+            }
         }
-        dbg!(&self.data);
+        // dbg!(&self.data);
     }
 
     fn battlesnake(&self, start: &Point, end: &Point) -> f32 {
         let i = (start.get_y() as usize * self.width) + start.get_x() as usize;
         self.data[i]
     }
-
 
     pub fn get_value(&self, start: &Point, end: &Point) -> f32 {
         (self.get_func)(self, start, end)

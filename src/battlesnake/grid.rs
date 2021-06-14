@@ -18,6 +18,15 @@ impl GridObject {
             _ => false,
         }
     }
+
+    pub fn is_considerable(&self) -> bool {
+        match self {
+            GridObject::Snake(_) => false,
+            GridObject::Collisionchance(_) => false,
+            GridObject::Outofbounds => false,
+            _ => true,
+        }
+    }
 }
 
 impl fmt::Display for GridObject {
@@ -57,7 +66,7 @@ impl GameGrid {
             height: dimensions.0,
             width: dimensions.1,
             data: vec![GridObject::Empty; dimensions.0 * dimensions.1],
-            ignore_hazard: false
+            ignore_hazard: false,
         }
     }
 
@@ -90,7 +99,9 @@ impl GameGrid {
 
     pub fn is_accessible(&self, pos: &Point) -> bool {
         let val = self.get_value(pos);
-        val == GridObject::Empty || val == GridObject::Food || (val == GridObject::Hazard && self.ignore_hazard)
+        val == GridObject::Empty
+            || val == GridObject::Food
+            || (val == GridObject::Hazard && self.ignore_hazard)
     }
 
     fn is_in_bounds(&self, pos: &Point) -> bool {
@@ -135,6 +146,21 @@ impl GameGrid {
                 Some(i) => {
                     if !self.data[i].is_snake() {
                         self.data[i] = GridObject::Hazard;
+                    }
+                }
+                None => {
+                    continue;
+                }
+            }
+        }
+    }
+
+    pub fn set_collision_chance(&mut self, collision: &Vec<Point>, hp: i32) {
+        for p in collision {
+            match self.get_index(&p) {
+                Some(i) => {
+                    if !self.data[i].is_snake() {
+                        self.data[i] = GridObject::Collisionchance(hp);
                     }
                 }
                 None => {

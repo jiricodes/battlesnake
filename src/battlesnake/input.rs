@@ -57,6 +57,15 @@ impl GameInfo {
         self.you.health
     }
 
+    pub fn get_my_index(&self) -> usize {
+        for (i, s) in self.board.snakes.iter().enumerate() {
+            if s.id == self.you.id {
+                return i;
+            }
+        }
+        return 101;
+    }
+
     pub fn get_snake_bodies(&self) -> Vec<Vec<Point>> {
         let mut snakes_bodies: Vec<Vec<Point>> = Vec::new();
         // add snakes

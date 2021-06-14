@@ -24,7 +24,7 @@ async fn domove(data: String) -> impl Responder {
     // let start: Instant = Instant::now();
     println!("\nReceived Move");
     let movement = Move::new(&data);
-    println!("Move: {}", &movement);
+    // println!("Move: {}", &movement);
     // println!("----\nAsnwered in {}\n---\n", start.elapsed().as_millis());
     HttpResponse::Ok().body(movement.get_json_string())
 }

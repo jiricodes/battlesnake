@@ -48,17 +48,21 @@ impl Move {
         let hazards = gameinfo.get_hazards();
         grid.set_hazards(&hazards);
         let head_collision = gameinfo.get_head_collision_hazard();
+        let hp = gameinfo.get_my_health();
         let food = gameinfo.get_food();
         grid.set_food(&food);
+        // visually food next snake head becomes collision risk here
+        grid.set_collision_chance(&head_collision, hp);
 
         // Log my snakes id
+        let sym = GridObject::Snake(gameinfo.get_my_index());
         println!("Turn: {}", gameinfo.get_turn());
-        println!("Snake ID: {}", gameinfo.get_my_id());
+        println!("[{}] HP : {}", sym, hp);
         // Get my snake's head and length
         let head = gameinfo.get_my_head();
-        println!("Head at: {}", head);
+        println!("[{}] Head at: {}", sym, head);
         let my_len = gameinfo.get_my_length();
-        println!("Length: {}", my_len);
+        println!("[{}] Length: {}", sym, my_len);
         println!("{}", grid);
 
         // If length is under 8 the snake cannot trap itself
@@ -67,12 +71,21 @@ impl Move {
         let mut move_point = Point::new(0, 0);
         let mut path = None;
         let mut astar = Astar::new();
-        'pathsearch: for apple in &food {
-            heur.battlesnake_init(grid.get_width() , grid.get_height(), &hazards, &head_collision, gameinfo.get_my_health(), apple);
+        let mut best = std::f32::MAX;
+        for apple in &food {
+            heur.battlesnake_init(
+                grid.get_width(),
+                grid.get_height(),
+                &hazards,
+                &head_collision,
+                hp,
+                apple,
+            );
             if astar.solve(head, *apple, &grid, &heur) {
-                if astar.get_cost() <= gameinfo.get_my_health() as f32 {
+                let c = astar.get_cost();
+                if c <= hp as f32 && c < best {
                     path = Some(astar.get_path());
-                    break 'pathsearch;
+                    best = c;
                 }
             }
         }
@@ -87,9 +100,10 @@ impl Move {
         //     }
         // }
         if path.is_some() {
+            println!("[{}] Found path with cost {}", sym, best);
             move_point = path.unwrap()[0];
         } else {
-            println!("A* found no path, moving first free space");
+            println!("[{}] A* found no path, moving first free space", sym);
             // Otherwise
             // if solo game -> we do hamilton
             // else -> super trooper algo?
@@ -99,17 +113,19 @@ impl Move {
             let turns = head.get_neighbours();
             for point in &turns {
                 let val = grid.get_value(point);
-                if val == GridObject::Empty || val == GridObject::Food {
+                if val.is_considerable() {
                     move_point = *point;
                 }
             }
         }
 
         // selects move that is either to empty or food cell
-        Self {
+        let m = Self {
             movement: head.get_neighbour_direction(move_point).unwrap(),
             shout: None,
-        }
+        };
+        println!("{}: {}", sym, m);
+        m
     }
 
     pub fn as_option_string(input: &str) -> Option<String> {

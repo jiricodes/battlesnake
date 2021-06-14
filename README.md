@@ -37,8 +37,7 @@ curl https://sh.rustup.rs -sSf | sh -s -- -y
 - [x] rework astar cost heur to "health cost" (e.g. normal move < hazard move costs)
 - [x] disregard paths with cost > health
 - [ ] save path to closest empty in astar
-- [ ] fallback to closest empty?
-- [ ] fallback to longest available path outside of the hazard
+- [ ] fallback to survival mode
 - [ ] game logging
 - [x] batch test scripts
 - [x] avoid _Hazard Sauce_ completely for now, unless no path found
