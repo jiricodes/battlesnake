@@ -11,14 +11,6 @@ use super::grid::GameGrid;
 use super::heuristic::Heuristic;
 use super::point::Point;
 
-pub struct Astar<'g> {
-    start: Point,
-    end: Point,
-    grid: &'g GameGrid,
-    heur: Heuristic,
-    solution: Option<Vec<Point>>,
-}
-
 #[derive(Eq, Clone, Debug)]
 struct AstarNode {
     point: Point,
@@ -138,28 +130,34 @@ impl AstarQueue {
     }
 }
 
-impl<'g> Astar<'g> {
-    fn new(start: Point, end: Point, grid: &'g GameGrid, heur: Heuristic) -> Self {
+pub struct Astar {
+    solution: Option<(f32, Vec<Point>)>,
+    closest_empty: Option<(f32, Vec<Point>)>,
+}
+
+impl Astar {
+    pub fn new() -> Self {
         Self {
-            start,
-            end,
-            grid,
-            heur,
             solution: None,
+            closest_empty: None,
         }
     }
+
     pub fn solve(
+        &mut self,
         start: Point,
         end: Point,
-        grid: &'g GameGrid,
+        grid: &GameGrid,
         heur: &Heuristic,
-    ) -> Option<Vec<Point>> {
+    ) -> bool {
+        self.solution = None;
         let mut queue = AstarQueue::new();
         queue.enqueue(AstarNode::new(start));
         while queue.len() > 0 {
             let current = queue.dequeue().unwrap();
             if current.is_end(&end) {
-                return Some(current.get_path());
+                self.solution = Some((current.get_cost() as f32, current.get_path()));
+                return true;
             }
             let children = current.get_children(grid, &heur);
             for (h, child) in &children {
@@ -168,7 +166,15 @@ impl<'g> Astar<'g> {
                 }
             }
         }
-        None
+        false
+    }
+
+    pub fn get_path(&self) -> Vec<Point> {
+        self.solution.as_ref().unwrap().1.clone()
+    }
+
+    pub fn get_cost(&self) -> f32 {
+        self.solution.as_ref().unwrap().0
     }
 }
 
@@ -183,8 +189,10 @@ mod test {
         let end = Point::new(9, 9);
         let grid = GameGrid::new((10, 10));
         let heur = Heuristic::new(HeurMethod::Manhattan);
-        let path = Astar::solve(start, end, &grid, &heur);
-        assert!(path != None);
+        let mut astar = Astar::new();
+        let ret = astar.solve(start, end, &grid, &heur);
+        assert!(ret == true);
+        let path = astar.get_path();
         dbg!(path);
     }
 
@@ -195,8 +203,10 @@ mod test {
         let grid = GameGrid::new((10, 10));
         let mut heur = Heuristic::new(HeurMethod::Battlesnake);
         heur.battlesnake_init(10, 10, &vec![Point::new(1, 1)], &vec![Point::new(5, 5)], 100, &end);
-        let path = Astar::solve(start, end, &grid, &heur);
-        assert!(path != None);
+        let mut astar = Astar::new();
+        let ret = astar.solve(start, end, &grid, &heur);
+        assert!(ret == true);
+        let path = astar.get_path();
         dbg!(path);
     }
 }

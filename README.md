@@ -34,11 +34,13 @@ curl https://sh.rustup.rs -sSf | sh -s -- -y
 
 ## TO-DO
 ### ASAP
-- [ ] rework astar cost heur to "health cost" (e.g. normal move < hazard move costs)
-- [ ] disregard paths with cost > health
+- [x] rework astar cost heur to "health cost" (e.g. normal move < hazard move costs)
+- [x] disregard paths with cost > health
+- [ ] save path to closest empty in astar
+- [ ] fallback to closest empty?
 - [ ] fallback to longest available path outside of the hazard
 - [ ] game logging
-- [ ] batch test scripts
+- [x] batch test scripts
 - [x] avoid _Hazard Sauce_ completely for now, unless no path found
 - [x] add hazard fields around heads of longer snakes
 - [ ] hazards around snakes heads vs food - which has prio? reconsider design

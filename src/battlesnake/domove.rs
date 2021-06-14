@@ -66,11 +66,14 @@ impl Move {
         let mut heur = Heuristic::new(HeurMethod::Battlesnake);
         let mut move_point = Point::new(0, 0);
         let mut path = None;
-        for apple in &food {
+        let mut astar = Astar::new();
+        'pathsearch: for apple in &food {
             heur.battlesnake_init(grid.get_width() , grid.get_height(), &hazards, &head_collision, gameinfo.get_my_health(), apple);
-            path = Astar::solve(head, *apple, &grid, &heur);
-            if path.is_some() {
-                break;
+            if astar.solve(head, *apple, &grid, &heur) {
+                if astar.get_cost() <= gameinfo.get_my_health() as f32 {
+                    path = Some(astar.get_path());
+                    break 'pathsearch;
+                }
             }
         }
         // Run the algo again, but ignore hazard
