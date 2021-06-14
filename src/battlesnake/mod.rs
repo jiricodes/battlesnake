@@ -1,11 +1,14 @@
 pub use astar::Astar;
+pub use dfs::Dfs;
 pub use domove::Move;
+pub use grid::{GameGrid, GridObject};
 pub use heuristic::Heuristic;
 pub use input::GameInfo;
 pub use point::Point;
 pub use snake::SnakeProps;
 
 pub mod astar;
+pub mod dfs;
 pub mod domove;
 pub mod grid;
 pub mod heuristic;

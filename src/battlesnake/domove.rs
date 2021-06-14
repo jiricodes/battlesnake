@@ -4,6 +4,7 @@ use super::grid::GridObject;
 use super::heuristic::{HeurMethod, Heuristic};
 use super::input::GameInfo;
 use super::point::Point;
+use super::Dfs;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -41,7 +42,6 @@ impl Move {
     pub fn new(input: &str) -> Self {
         // Parse game information
         let gameinfo = GameInfo::new(&input);
-
         // Create grid and fill it with snake bodies, hazard and food - Should be split
         let mut grid = GameGrid::new(gameinfo.get_board_dimensions());
         grid.set_snakes(gameinfo.get_snake_bodies());
@@ -52,7 +52,7 @@ impl Move {
         let food = gameinfo.get_food();
         grid.set_food(&food);
         // visually food next snake head becomes collision risk here
-        grid.set_collision_chance(&head_collision, hp);
+        grid.set_collision_chance(&head_collision, hp + 1);
 
         // Log my snakes id
         let sym = GridObject::Snake(gameinfo.get_my_index());
@@ -63,7 +63,6 @@ impl Move {
         println!("[{}] Head at: {}", sym, head);
         let my_len = gameinfo.get_my_length();
         println!("[{}] Length: {}", sym, my_len);
-        println!("{}", grid);
 
         // If length is under 8 the snake cannot trap itself
         // so lets just head towards closest food
@@ -83,7 +82,11 @@ impl Move {
             );
             if astar.solve(head, *apple, &grid, &heur) {
                 let c = astar.get_cost();
-                if c <= hp as f32 && c < best {
+                let mut dfs = Dfs::new();
+                let ret = dfs.get_atleast_len(apple, &grid, my_len);
+                println!("[{}]  Return for Apple {}: {}", sym, apple, ret);
+                // need to involve checking, wheather I survive the way back
+                if c <= hp as f32 && c < best && ret {
                     path = Some(astar.get_path());
                     best = c;
                 }
@@ -99,6 +102,7 @@ impl Move {
         //         }
         //     }
         // }
+
         if path.is_some() {
             println!("[{}] Found path with cost {}", sym, best);
             move_point = path.unwrap()[0];
@@ -114,10 +118,26 @@ impl Move {
             for point in &turns {
                 let val = grid.get_value(point);
                 if val.is_considerable() {
-                    move_point = *point;
+                    let mut dfs = Dfs::new();
+                    let ret = dfs.get_atleast_len(point, &grid, my_len);
+                    println!("[{}] Return for Consider Point {}: {}", sym, point, ret);
+                    if ret {
+                        move_point = *point;
+                        break;
+                    }
+                } else if val.is_accessible() {
+                    let mut dfs = Dfs::new();
+                    let ret = dfs.get_atleast_len(point, &grid, my_len);
+                    println!("[{}] Return for Access Point {}: {}", sym, point, ret);
+                    if ret {
+                        move_point = *point;
+                    }
                 }
             }
         }
+
+        grid.set_food_for_print(&food);
+        println!("{}", grid);
 
         // selects move that is either to empty or food cell
         let m = Self {

@@ -37,6 +37,8 @@ curl https://sh.rustup.rs -sSf | sh -s -- -y
 - [x] rework astar cost heur to "health cost" (e.g. normal move < hazard move costs)
 - [x] disregard paths with cost > health
 - [ ] save path to closest empty in astar
+- [x] dfs fallback experiment
+- [ ] check if dfs path is survivable
 - [ ] fallback to survival mode
 - [ ] game logging
 - [x] batch test scripts

@@ -27,6 +27,14 @@ impl GridObject {
             _ => true,
         }
     }
+
+    pub fn is_accessible(&self) -> bool {
+        match self {
+            GridObject::Snake(_) => false,
+            GridObject::Outofbounds => false,
+            _ => true,
+        }
+    }
 }
 
 impl fmt::Display for GridObject {
@@ -99,9 +107,7 @@ impl GameGrid {
 
     pub fn is_accessible(&self, pos: &Point) -> bool {
         let val = self.get_value(pos);
-        val == GridObject::Empty
-            || val == GridObject::Food
-            || (val == GridObject::Hazard && self.ignore_hazard)
+        val.is_accessible()
     }
 
     fn is_in_bounds(&self, pos: &Point) -> bool {
@@ -128,6 +134,21 @@ impl GameGrid {
     }
 
     pub fn set_food(&mut self, food: &Vec<Point>) {
+        for p in food {
+            match self.get_index(&p) {
+                Some(i) => {
+                    if self.data[i] == GridObject::Empty {
+                        self.data[i] = GridObject::Food;
+                    }
+                }
+                None => {
+                    continue;
+                }
+            }
+        }
+    }
+
+    pub fn set_food_for_print(&mut self, food: &Vec<Point>) {
         for p in food {
             match self.get_index(&p) {
                 Some(i) => {

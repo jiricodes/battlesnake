@@ -35,6 +35,8 @@ if [ "${quiet}" != "y" ]
 then
     echo "Launching BattleSnake API"
 fi
+(cd ${snake_bin}; cargo build);
+sleep 5
 cargo run --manifest-path ${snake_bin} > ${DIR}/logs/$N.out.log 2> ${DIR}/logs/$N.err.log </dev/null &
 sleep 1
 ## run games
@@ -48,6 +50,7 @@ fi
 
 for ((i=1; i<=$num_games; i++))
 do
+    echo -ne "\n ----------------- Game $i --------------" >> ${DIR}/logs/$N.out.log
     echo -ne "\nGame $i " >> $testsum
     (cd ${rules_dir}; ./${rules_cmd} 2>$tmplog)
     t=$(cat $tmplog | grep DONE | awk '{ print $7 }')
