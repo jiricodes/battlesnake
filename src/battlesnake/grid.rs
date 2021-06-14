@@ -3,17 +3,18 @@ use std::fmt;
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum GridObject {
-    EMPTY,
-    FOOD,
-    SNAKE(usize),
-    HAZARD,
-    OUTOFBOUND,
+    Empty,
+    Food,
+    Snake(usize),
+    Hazard,
+    Collisionchance(i32),
+    Outofbounds,
 }
 
 impl GridObject {
     pub fn is_snake(&self) -> bool {
         match self {
-            GridObject::SNAKE(_) => true,
+            GridObject::Snake(_) => true,
             _ => false,
         }
     }
@@ -22,9 +23,9 @@ impl GridObject {
 impl fmt::Display for GridObject {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let symbol = match self {
-            GridObject::EMPTY => "◦",
-            GridObject::FOOD => "⚕",
-            GridObject::SNAKE(n) => match n {
+            GridObject::Empty => "◦",
+            GridObject::Food => "⚕",
+            GridObject::Snake(n) => match n {
                 0 => "■",
                 1 => "⌀",
                 2 => "●",
@@ -35,8 +36,9 @@ impl fmt::Display for GridObject {
                 7 => "☻",
                 _ => "S",
             },
-            GridObject::HAZARD => "H",
-            GridObject::OUTOFBOUND => "X",
+            GridObject::Hazard => "H",
+            GridObject::Outofbounds => "X",
+            GridObject::Collisionchance(_) => "!",
         };
         write!(f, "{}", symbol)
     }
@@ -54,13 +56,13 @@ impl GameGrid {
         Self {
             height: dimensions.0,
             width: dimensions.1,
-            data: vec![GridObject::EMPTY; dimensions.0 * dimensions.1],
+            data: vec![GridObject::Empty; dimensions.0 * dimensions.1],
             ignore_hazard: false
         }
     }
 
     pub fn reset(&mut self) {
-        self.data = vec![GridObject::EMPTY; self.height * self.width];
+        self.data = vec![GridObject::Empty; self.height * self.width];
     }
 
     fn get_index(&self, pos: &Point) -> Option<usize> {
@@ -74,13 +76,21 @@ impl GameGrid {
     pub fn get_value(&self, pos: &Point) -> GridObject {
         match self.get_index(&pos) {
             Some(i) => self.data[i],
-            None => GridObject::OUTOFBOUND,
+            None => GridObject::Outofbounds,
+        }
+    }
+
+    pub fn get_value_at_index(&self, i: usize) -> GridObject {
+        if i < self.width * self.height {
+            self.data[i]
+        } else {
+            GridObject::Outofbounds
         }
     }
 
     pub fn is_accessible(&self, pos: &Point) -> bool {
         let val = self.get_value(pos);
-        val == GridObject::EMPTY || val == GridObject::FOOD || (val == GridObject::HAZARD && self.ignore_hazard)
+        val == GridObject::Empty || val == GridObject::Food || (val == GridObject::Hazard && self.ignore_hazard)
     }
 
     fn is_in_bounds(&self, pos: &Point) -> bool {
@@ -96,7 +106,7 @@ impl GameGrid {
             for point in snake.iter() {
                 match self.get_index(&point) {
                     Some(i) => {
-                        self.data[i] = GridObject::SNAKE(p);
+                        self.data[i] = GridObject::Snake(p);
                     }
                     None => {
                         continue;
@@ -110,7 +120,7 @@ impl GameGrid {
         for p in food {
             match self.get_index(&p) {
                 Some(i) => {
-                    self.data[i] = GridObject::FOOD;
+                    self.data[i] = GridObject::Food;
                 }
                 None => {
                     continue;
@@ -124,7 +134,7 @@ impl GameGrid {
             match self.get_index(&p) {
                 Some(i) => {
                     if !self.data[i].is_snake() {
-                        self.data[i] = GridObject::HAZARD;
+                        self.data[i] = GridObject::Hazard;
                     }
                 }
                 None => {
@@ -136,7 +146,15 @@ impl GameGrid {
 
     pub fn ignore_hazard(&mut self) {
         self.ignore_hazard = true;
-    } 
+    }
+
+    pub fn get_width(&self) -> usize {
+        self.width
+    }
+
+    pub fn get_height(&self) -> usize {
+        self.height
+    }
 }
 
 impl fmt::Display for GameGrid {
@@ -174,7 +192,7 @@ mod test {
     #[test]
     fn grid_get_value() {
         let grid = GameGrid::new((10, 10));
-        assert_eq!(grid.get_value(&Point::new(5, 5)), GridObject::EMPTY);
-        assert_eq!(grid.get_value(&Point::new(-1, 5)), GridObject::OUTOFBOUND);
+        assert_eq!(grid.get_value(&Point::new(5, 5)), GridObject::Empty);
+        assert_eq!(grid.get_value(&Point::new(-1, 5)), GridObject::Outofbounds);
     }
 }

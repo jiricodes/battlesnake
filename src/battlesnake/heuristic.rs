@@ -1,6 +1,7 @@
 //! Heuristic module to support modularity of A* search algo
 
 use super::point::Point;
+use super::grid::{GameGrid, GridObject};
 
 #[derive(Clone, Copy, Debug)]
 pub enum HeurMethod {
@@ -11,7 +12,7 @@ pub enum HeurMethod {
 
 pub struct Heuristic {
     method: HeurMethod,
-    pub get_func: fn(&Point, &Point) -> f32,
+    pub get_func: fn(&Heuristic, &Point, &Point) -> f32,
     width: usize,
     height: usize,
     data: Vec<f32>,
@@ -31,25 +32,43 @@ impl Heuristic {
             data: Vec::new(),
         }
     }
-    fn manhattan(start: &Point, end: &Point) -> f32 {
+    fn manhattan(&self, start: &Point, end: &Point) -> f32 {
         start.manhattan_distance(end) as f32
     }
 
-    fn euclidean(start: &Point, end: &Point) -> f32 {
+    fn euclidean(&self, start: &Point, end: &Point) -> f32 {
         start.distance(end)
     }
 
-    fn battlesnake_init(&self) {
-        unimplemented!();
+    pub fn battlesnake_init(&mut self, width: usize, height: usize, hazards: &Vec<Point>, collision: &Vec<Point>, health: i32 ,target: &Point) {
+        self.data.clear();
+        self.width = width;
+        self.height = height;
+        let x = target.get_x();
+        let y = target.get_y();
+        for i in 0..(self.height * self.width) {
+            let v: i32 = (x - (i % self.width) as i32).abs() + (y - (i / self.width) as i32).abs();
+            self.data.push(v as f32);
+        }
+        for p in hazards {
+            let i = (p.get_y() as usize * self.width) + p.get_x() as usize;
+            self.data[i] += 15.0;
+        }
+        for p in collision {
+            let i = (p.get_y() as usize * self.width) + p.get_x() as usize;
+            self.data[i] += health as f32;
+        }
+        dbg!(&self.data);
     }
 
-    fn battlesnake(start: &Point, end: &Point) -> f32 {
-        unimplemented!();
+    fn battlesnake(&self, start: &Point, end: &Point) -> f32 {
+        let i = (start.get_y() as usize * self.width) + start.get_x() as usize;
+        self.data[i]
     }
 
 
     pub fn get_value(&self, start: &Point, end: &Point) -> f32 {
-        (self.get_func)(start, end)
+        (self.get_func)(self, start, end)
     }
 }
 

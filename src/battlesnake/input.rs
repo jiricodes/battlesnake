@@ -53,6 +53,10 @@ impl GameInfo {
         self.you.head
     }
 
+    pub fn get_my_health(&self) -> i32 {
+        self.you.health
+    }
+
     pub fn get_snake_bodies(&self) -> Vec<Vec<Point>> {
         let mut snakes_bodies: Vec<Vec<Point>> = Vec::new();
         // add snakes
@@ -71,8 +75,8 @@ impl GameInfo {
         &self.board.hazards
     }
 
-    pub fn get_extended_hazards(&self) -> Vec<Point> {
-        let mut result = self.board.hazards.clone();
+    pub fn get_head_collision_hazard(&self) -> Vec<Point> {
+        let mut result: Vec<Point> = Vec::new();
         for snake in self.board.snakes.iter() {
             if snake.length >= self.you.length && snake.id != self.you.id {
                 let ngbs = snake.head.get_neighbours();

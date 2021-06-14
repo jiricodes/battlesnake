@@ -152,7 +152,7 @@ impl<'g> Astar<'g> {
         start: Point,
         end: Point,
         grid: &'g GameGrid,
-        heur: Heuristic,
+        heur: &Heuristic,
     ) -> Option<Vec<Point>> {
         let mut queue = AstarQueue::new();
         queue.enqueue(AstarNode::new(start));
@@ -183,7 +183,19 @@ mod test {
         let end = Point::new(9, 9);
         let grid = GameGrid::new((10, 10));
         let heur = Heuristic::new(HeurMethod::Manhattan);
-        let path = Astar::solve(start, end, &grid, heur);
+        let path = Astar::solve(start, end, &grid, &heur);
+        assert!(path != None);
+        dbg!(path);
+    }
+
+    #[test]
+    fn basic_battlesnake() {
+        let start = Point::new(0, 0);
+        let end = Point::new(9, 9);
+        let grid = GameGrid::new((10, 10));
+        let mut heur = Heuristic::new(HeurMethod::Battlesnake);
+        heur.battlesnake_init(10, 10, &vec![Point::new(1, 1)], &vec![Point::new(5, 5)], 100, &end);
+        let path = Astar::solve(start, end, &grid, &heur);
         assert!(path != None);
         dbg!(path);
     }

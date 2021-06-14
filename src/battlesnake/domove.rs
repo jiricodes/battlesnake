@@ -45,7 +45,9 @@ impl Move {
         // Create grid and fill it with snake bodies, hazard and food - Should be split
         let mut grid = GameGrid::new(gameinfo.get_board_dimensions());
         grid.set_snakes(gameinfo.get_snake_bodies());
-        grid.set_hazards(&gameinfo.get_extended_hazards());
+        let hazards = gameinfo.get_hazards();
+        grid.set_hazards(&hazards);
+        let head_collision = gameinfo.get_head_collision_hazard();
         let food = gameinfo.get_food();
         grid.set_food(&food);
 
@@ -61,24 +63,26 @@ impl Move {
 
         // If length is under 8 the snake cannot trap itself
         // so lets just head towards closest food
+        let mut heur = Heuristic::new(HeurMethod::Battlesnake);
         let mut move_point = Point::new(0, 0);
         let mut path = None;
         for apple in &food {
-            path = Astar::solve(head, *apple, &grid, Heuristic::new(HeurMethod::Manhattan));
+            heur.battlesnake_init(grid.get_width() , grid.get_height(), &hazards, &head_collision, gameinfo.get_my_health(), apple);
+            path = Astar::solve(head, *apple, &grid, &heur);
             if path.is_some() {
                 break;
             }
         }
         // Run the algo again, but ignore hazard
-        if path.is_none() {
-            grid.ignore_hazard();
-            for apple in &food {
-                path = Astar::solve(head, *apple, &grid, Heuristic::new(HeurMethod::Manhattan));
-                if path.is_some() {
-                    break;
-                }
-            }
-        }
+        // if path.is_none() {
+        //     grid.ignore_hazard();
+        //     for apple in &food {
+        //         path = Astar::solve(head, *apple, &grid, Heuristic::new(HeurMethod::Manhattan));
+        //         if path.is_some() {
+        //             break;
+        //         }
+        //     }
+        // }
         if path.is_some() {
             move_point = path.unwrap()[0];
         } else {
@@ -92,7 +96,7 @@ impl Move {
             let turns = head.get_neighbours();
             for point in &turns {
                 let val = grid.get_value(point);
-                if val == GridObject::EMPTY || val == GridObject::FOOD {
+                if val == GridObject::Empty || val == GridObject::Food {
                     move_point = *point;
                 }
             }
