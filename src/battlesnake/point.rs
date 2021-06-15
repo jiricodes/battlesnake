@@ -95,6 +95,16 @@ impl Point {
             _ => None,
         }
     }
+
+    pub fn is_neighbour(self, other: Point) -> bool {
+        match other - self {
+            Point { x: 1, y: 0 } => true,
+            Point { x: -1, y: 0 } => true,
+            Point { x: 0, y: 1 } => true,
+            Point { x: 0, y: -1 } => true,
+            _ => false,
+        }
+    }
 }
 
 impl fmt::Display for Point {

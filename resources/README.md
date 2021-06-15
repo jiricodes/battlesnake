@@ -43,6 +43,8 @@ Local client for running tests etc.
 
 [chuyangliu's snake](https://github.com/chuyangliu/snake)
 
+[A simple Tron bot](https://sifflez.org/misc/tronbot/)
+
 [slitherin snake](https://github.com/gsurma/slitherin)
 
 [Today to show you Hamilton ring automatic play Snake game ah](https://www.fatalerrors.org/a/today-to-show-you-hamilton-ring-automatic-play-snake-game-ah.html)

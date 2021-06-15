@@ -86,7 +86,7 @@ impl Move {
                 let ret = dfs.get_atleast_len(apple, &grid, my_len);
                 println!("[{}]  Return for Apple {}: {}", sym, apple, ret);
                 // need to involve checking, wheather I survive the way back
-                if c <= hp as f32 && c < best && ret {
+                if (c <= hp as f32 || head.is_neighbour(*apple)) && c < best && ret {
                     path = Some(astar.get_path());
                     best = c;
                 }
