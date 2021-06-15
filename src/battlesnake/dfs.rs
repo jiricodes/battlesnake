@@ -111,36 +111,38 @@ mod test {
         dbg!(dfs.get_cost());
     }
 
-
     #[test]
     fn way_out() {
         let mut grid = GameGrid::new((11, 11));
-        grid.set_snakes(vec![vec![
-            Point::new(10, 9),
-            Point::new(10, 8),
-            Point::new(10, 7),
-            Point::new(10, 6),
-            Point::new(10, 5),
-            Point::new(9, 5),
-            Point::new(8, 5),
-            Point::new(7, 5),
-            Point::new(7, 6),
-            Point::new(8, 6),
-            Point::new(9, 6),
-            Point::new(9, 6),],
+        grid.set_snakes(vec![
             vec![
-            Point::new(8, 9),
-            Point::new(8, 8),
-            Point::new(7, 8),
-            Point::new(6, 8),
-            Point::new(6, 7),
-            Point::new(6, 6),
-            Point::new(5, 6),
-            Point::new(5, 7),
-            Point::new(4, 7),
-            Point::new(3, 7),
-            Point::new(2, 7),
-        ]]);
+                Point::new(10, 9),
+                Point::new(10, 8),
+                Point::new(10, 7),
+                Point::new(10, 6),
+                Point::new(10, 5),
+                Point::new(9, 5),
+                Point::new(8, 5),
+                Point::new(7, 5),
+                Point::new(7, 6),
+                Point::new(8, 6),
+                Point::new(9, 6),
+                Point::new(9, 6),
+            ],
+            vec![
+                Point::new(8, 9),
+                Point::new(8, 8),
+                Point::new(7, 8),
+                Point::new(6, 8),
+                Point::new(6, 7),
+                Point::new(6, 6),
+                Point::new(5, 6),
+                Point::new(5, 7),
+                Point::new(4, 7),
+                Point::new(3, 7),
+                Point::new(2, 7),
+            ],
+        ]);
         let start = Point::new(9, 9);
         let atleast = 12;
         let mut dfs = Dfs::new();

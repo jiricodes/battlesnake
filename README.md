@@ -3,9 +3,33 @@ Leisure project - Rust API for [battlesnake.com](https://play.battlesnake.com/)
 
 Currently working on implementation solely for Royale mode due to ongoing [Summer Leage](https://play.battlesnake.com/league/summer-league-2021/) event (registered as _Go Giddy_ snake).
 
-## Current state (~30% win ratio)
-Simple manhattan A* forcing out of hazards paths with fallback on ignoring hazard. 
+## Current state
 
+### Aggregate
+On aggregate all version have achieved following results during battlesnake's Summer League Event 2021:
+```
+Jun 15
+
+Games: 448
+Wins: 115
+Losses: 333
+Win Rate: 25.67%
+```
+
+### v0.1.0 WIP
+Despite there are a lot of possible improvements for v0.0.2 algo, I believe that minmax based snake has better chances on success.
+So I'll attempt to create one and test it 1v1 with it's predecessors. Let see.
+
+### v0.0.2 (~27% win ratio)
+Additional DFS checking implemented to check whether a path has an escape path. This feature could use some refactoring in order to be more inpactful
+
+Local tests of Self vs. Self royale games averaged on 77 turns in 10k games. The results reflect average survival rate of this version as it doesn't involve any _aggresive_ moves yet.
+
+### v0.0.1 (~25% win ratio)
+New heuristic _Battlesnake_ that considers move cost to be 1 + [15 if hazard] + [(snake hp + 1) if potential collision with other snake].
+
+### v0.0.0 (~20% win ratio)
+Simple manhattan A* forcing out of hazards paths with fallback on ignoring hazard. 
 Marking surrounding cells of bigger snakes' heads as _hazard_.
 
 ## Used farmworks

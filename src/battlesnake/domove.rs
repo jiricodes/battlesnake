@@ -134,6 +134,18 @@ impl Move {
                     }
                 }
             }
+            if grid.get_value(&move_point) == GridObject::Outofbounds {
+                println!("[{}] Selected point ({}) is out of bounds, searching for inbound one. in [{}, {}, {}, {}]", sym, move_point, turns[0], turns[1], turns[2], turns[3]);
+                for p in &turns {
+                    let v = grid.get_value(p);
+                    if v != GridObject::Outofbounds {
+                        move_point = *p;
+                        if v.is_accessible() {
+                            break;
+                        }
+                    }
+                }
+            }
         }
 
         grid.set_food_for_print(&food);

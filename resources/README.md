@@ -24,6 +24,11 @@ Local client for running tests etc.
 
 ### [Efficient solution for finding Hamilton cycles in undirected graphs](https://springerplus.springeropen.com/track/pdf/10.1186/s40064-016-2746-8.pdf)
 
+### Series about snake algos
+- [Part 1](https://davideliu.com/2020/01/24/teaching-ai-to-play-snake-with-reinforcement-learning/)
+- [Part 2](https://davideliu.com/2020/02/03/teaching-ai-to-play-snake-with-genetic-algorithm/)
+- [Part 3](https://davideliu.com/2020/02/06/ais-battle-royale-the-ultimate-snake/)
+
 ## Unsorted
 [Building an AI-powered Battlesnake with reinforcement learning on Amazon SageMaker](https://aws.amazon.com/blogs/machine-learning/building-an-ai-powered-battlesnake-with-reinforcement-learning-on-amazon-sagemaker/)
 
