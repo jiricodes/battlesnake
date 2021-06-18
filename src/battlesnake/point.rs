@@ -97,13 +97,7 @@ impl Point {
     }
 
     pub fn is_neighbour(self, other: Point) -> bool {
-        match other - self {
-            Point { x: 1, y: 0 } => true,
-            Point { x: -1, y: 0 } => true,
-            Point { x: 0, y: 1 } => true,
-            Point { x: 0, y: -1 } => true,
-            _ => false,
-        }
+        self.manhattan_distance(&other) == 1
     }
 }
 

@@ -8,12 +8,12 @@ Currently working on implementation solely for Royale mode due to ongoing [Summe
 ### Aggregate
 On aggregate all version have achieved following results during battlesnake's Summer League Event 2021:
 ```
-Jun 15
+Jun 18
 
-Games: 448
-Wins: 115
-Losses: 333
-Win Rate: 25.67%
+Games: 865
+Wins: 199
+Losses: 666
+Win Rate: 23.01%
 ```
 
 ### v0.1.0 WIP
@@ -69,6 +69,11 @@ curl https://sh.rustup.rs -sSf | sh -s -- -y
 - [x] avoid _Hazard Sauce_ completely for now, unless no path found
 - [x] add hazard fields around heads of longer snakes
 - [ ] hazards around snakes heads vs food - which has prio? reconsider design
+
+### A* to-do list
+- Heuristics
+    - [ ] floodfill for space eval (discord suggested high boost in performance)
+    - [ ] implement aggressive move eval
 
 ### IDEAS
 - [ ] figure out how not to get _self-stuck_ (perhaps the GE paper could help)

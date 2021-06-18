@@ -30,6 +30,10 @@ Local client for running tests etc.
 - [Part 3](https://davideliu.com/2020/02/06/ais-battle-royale-the-ultimate-snake/)
 Blog series about implementation of heuristic algorithm, Deep Q-Learning, genetic algorithm and deep search algorithm to create snakes' AI and let them battle each other. 
 
+### Monte Carlo Tree Search
+- [Monte Carlo Simulation MIT](https://youtu.be/OgO1gpXSUzU)
+
+
 ## Unsorted
 [Building an AI-powered Battlesnake with reinforcement learning on Amazon SageMaker](https://aws.amazon.com/blogs/machine-learning/building-an-ai-powered-battlesnake-with-reinforcement-learning-on-amazon-sagemaker/)
 
