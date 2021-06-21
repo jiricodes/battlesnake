@@ -3,13 +3,15 @@
 //! v0.0.1
 //! Eventually should consider snake length, smoothness and available space through heuristic perhaps
 
+// default
 use std::cmp::{Ordering, Reverse};
 use std::collections::BinaryHeap;
 use std::collections::HashMap;
 
-use super::grid::{GameGrid, GridObject};
-use super::heuristic::Heuristic;
-use super::point::Point;
+// custom
+use super::{GameGrid, GridObject};
+use super::Heuristic;
+use super::Point;
 
 #[derive(Eq, Clone, Debug)]
 struct AstarNode {

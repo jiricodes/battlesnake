@@ -3,6 +3,7 @@ use std::convert::TryFrom;
 use super::input::GameInfo;
 use super::point::Point;
 use super::snake::Snake;
+use super::Direction;
 
 #[derive(Debug)]
 pub struct Board {
@@ -26,6 +27,14 @@ impl Board {
             food: input.get_food(),
             bound: Point::new(dim.0 as i32 - 1, dim.1 as i32 - 1),
         }
+    }
+
+    pub fn get_all_moves(&self) -> Vec<Vec<Direction>> {
+        let ret: Vec<Vec<Direction>> = Vec::new();
+        for snake in self.snakes {
+            // iterate over all directions and remove the conflicting ones
+        }
+        unimplemented!();
     }
 }
 

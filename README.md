@@ -57,6 +57,10 @@ curl https://sh.rustup.rs -sSf | sh -s -- -y
 ```
 
 ## TO-DO
+### Minimax Rework
+- [ ] all eligible moves of all snakes at current board
+- [ ] move A* to board
+
 ### ASAP
 - [x] rework astar cost heur to "health cost" (e.g. normal move < hazard move costs)
 - [x] disregard paths with cost > health

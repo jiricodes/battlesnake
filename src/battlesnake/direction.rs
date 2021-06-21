@@ -14,7 +14,7 @@ pub const ALL_DIRECTIONS: [Direction; 4] = [
     Direction::Down,
 ];
 
-#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
+#[derive(Deserialize, Serialize, Copy, Clone, PartialEq, Debug, Eq, Hash)]
 #[serde(rename_all(serialize = "lowercase", deserialize = "lowercase"))]
 pub enum Direction {
     Right,

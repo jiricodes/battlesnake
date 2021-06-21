@@ -86,6 +86,7 @@ impl Point {
         best.clone()
     }
 
+    // needs rework to use try_from for direction
     pub fn get_neighbour_direction(self, neighbour: Self) -> Option<Direction> {
         let p = neighbour - self;
         match p {
@@ -130,9 +131,52 @@ impl Add for Point {
     }
 }
 
+impl Add<Direction> for Point {
+    type Output = Self;
+
+    fn add(self, dir: Direction) -> Self {
+        self + Point::from(dir)
+    }
+}
+
+impl Add<&Direction> for Point {
+    type Output = Self;
+
+    fn add(self, dir: &Direction) -> Self {
+        self + Point::from(dir)
+    }
+}
+
+impl Sub<Direction> for Point {
+    type Output = Self;
+
+    fn sub(self, dir: Direction) -> Self {
+        self - Point::from(dir)
+    }
+}
+
+impl Sub<&Direction> for Point {
+    type Output = Self;
+
+    fn sub(self, dir: &Direction) -> Self {
+        self - Point::from(dir)
+    }
+}
+
 impl From<Direction> for Point {
-    fn from(movement: Direction) -> Self {
-        match movement {
+    fn from(dir: Direction) -> Self {
+        match dir {
+            Direction::Right => Point { x: 1, y: 0 },
+            Direction::Left => Point { x: -1, y: 0 },
+            Direction::Up => Point { x: 0, y: 1 },
+            Direction::Down => Point { x: 0, y: -1 },
+        }
+    }
+}
+
+impl From<&Direction> for Point {
+    fn from(dir: &Direction) -> Self {
+        match *dir {
             Direction::Right => Point { x: 1, y: 0 },
             Direction::Left => Point { x: -1, y: 0 },
             Direction::Up => Point { x: 0, y: 1 },
