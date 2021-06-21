@@ -17,10 +17,10 @@ rm Cargo.lock
 
 # build the binary
 echo "Building BattleSnake API"
-cargo build
+cargo build --release
 echo "Build finished"
 
 # run on background and log into timestamped logs
 N=$(date +"%Y%m%dT%H%M")
 echo "Launching BattleSnake API"
-cargo run > ${DIR}/logs/$N.out.log 2> ${DIR}/logs/$N.err.log </dev/null &
+cargo run --release > ${DIR}/logs/$N.out.log 2> ${DIR}/logs/$N.err.log </dev/null &

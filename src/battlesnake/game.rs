@@ -1,4 +1,4 @@
-//! Game state for minmax, ab pruning and iterative deepening eventualy - Possibly with EG for game state evaluation?
+//! Game state for minmax, ab pruning and iterative deepening eventualy - Possibly with EG for game state evaluation? Or even MCTS?
 //! - for now consider using HEALTH as move indicator
 //! - the gamestate should be evaluate self somehow
 //! 

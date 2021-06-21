@@ -1,6 +1,6 @@
 #! /bin/bash
 
-num_games=1000
+num_games=100
 
 #args
 if [ "$1" == "-q" ]
@@ -10,14 +10,21 @@ else
     quiet=n
 fi
 
-s1_name="MySnakeA"
-s2_name="MySnakeB"
+# Adversary number 1
+s1_name="V0.0.2"
+s1_bin=./battlesnake-v0.0.2
+s1_add="http://127.0.0.1:6969"
+s1_log="logs-${s1_name}"
+
+# My current snake
+my_name="CurrentWork"
+my_add="http://127.0.0.1:6970"
+my_dir=/home/jiricodes/Documents/battlesnake/
+my_bin=${my_dir}Cargo.toml
+
 
 rules_dir=/home/jiricodes/Documents/rules_battlesnake
-rules_cmd="battlesnake play -W 11 -H 11 --name ${s1_name} --url http://127.0.0.1:6969 --name ${s2_name} --url http://127.0.0.1:6969 -g royale -v"
-
-DIR=/home/jiricodes/Documents/battlesnake/
-snake_bin=${DIR}Cargo.toml
+rules_cmd="battlesnake play -W 11 -H 11 --name ${s1_name} --url ${s1_add} --name ${my_name} --url ${my_add} -g royale -v"
 
 #utils
 avg_turns=0
@@ -29,20 +36,29 @@ errors=0
 
 #exec
 pkill battlesnake
-mkdir -p ${DIR}/logs
+mkdir -p ${my_dir}/logs
 N=$(date +"%Y%m%dT%H%M")
 if [ "${quiet}" != "y" ]
 then
-    echo "Launching BattleSnake API"
+    echo "Launching Adversaries"
 fi
-(cd ${snake_bin}; cargo build);
+
+mkdir -p ${s1_log}
+${s1_bin} > ${s1_log}/$N.out.log 2> ${s1_log}/$N.err.log </dev/null &
+sleep 1
+
+if [ "${quiet}" != "y" ]
+then
+    echo "Launching Current BattleSnake API"
+fi
+(cd ${my_dir}; cargo build --release);
 sleep 5
-cargo run --manifest-path ${snake_bin} > ${DIR}/logs/$N.out.log 2> ${DIR}/logs/$N.err.log </dev/null &
+cargo run --release --manifest-path ${my_bin} > ${my_dir}/logs/$N.out.log 2> ${my_dir}/logs/$N.err.log </dev/null &
 sleep 1
 ## run games
-glog=${DIR}/logs/$N.games.log
-tmplog=${DIR}/logs/tmp.log
-testsum=${DIR}/logs/testsum.log
+glog=${my_dir}/logs/$N.games.log
+tmplog=${my_dir}/logs/tmp.log
+testsum=${my_dir}/logs/testsum.log
 if [ "${quiet}" != "y" ]
 then
     echo "Running set of ${num_games}"
@@ -50,7 +66,7 @@ fi
 
 for ((i=1; i<=$num_games; i++))
 do
-    echo -ne "\n ----------------- Game $i --------------" >> ${DIR}/logs/$N.out.log
+    echo -ne "\n ----------------- Game $i --------------" >> ${my_dir}/logs/$N.out.log
     echo -ne "\nGame $i " >> $testsum
     (cd ${rules_dir}; ./${rules_cmd} 2>$tmplog)
     t=$(cat $tmplog | grep DONE | awk '{ print $7 }')
@@ -61,8 +77,8 @@ do
     then
         a_wins=$(( ${a_wins} + 1 ))
         cat $tmplog | tail -n 17 >> $glog
-        reason="${s2_name}: "$(cat $tmplog | tail -n 17 | head -n 6 | grep ${s2_name} | awk '{ print $(NF-1) }')
-    elif [ "$w" == "$s2_name" ]
+        reason="${my_name}: "$(cat $tmplog | tail -n 17 | head -n 6 | grep ${my_name} | awk '{ print $(NF-1) }')
+    elif [ "$w" == "$my_name" ]
     then
         b_wins=$(( ${b_wins} + 1 ))
         cat $tmplog | tail -n 17 >> $glog
@@ -73,7 +89,7 @@ do
         then
             draws=$(( ${draws} + 1 ))
             cat $tmplog | tail -n 17 >> $glog
-            reason="${s1_name}: "$(cat $tmplog | tail -n 17 | head -n 6 | grep ${s1_name} | awk '{ print $(NF-1) }')"\n""${s2_name}: "$(cat $tmplog | tail -n 17 | head -n 6 | grep ${s2_name} | awk '{ print $(NF-1) }') 
+            reason="${s1_name}: "$(cat $tmplog | tail -n 17 | head -n 6 | grep ${s1_name} | awk '{ print $(NF-1) }')"\n""${my_name}: "$(cat $tmplog | tail -n 17 | head -n 6 | grep ${my_name} | awk '{ print $(NF-1) }') 
         else
             errors=$(( ${errors} + 1 ))
             cat $tmplog | tail -n 33 >> $glog
@@ -94,7 +110,7 @@ avg_turns=$(( ${ttl} / ${num_games} ))
 echo "" >> $testsum
 echo "Average Turns: ${avg_turns}" >> $testsum
 echo "${s1_name}: ${a_wins}" >> $testsum
-echo "${s2_name}: ${b_wins}" >> $testsum
+echo "${my_name}: ${b_wins}" >> $testsum
 echo "Draws: ${draws}" >> $testsum
 echo "Errors: ${errors}" >> $testsum
 
