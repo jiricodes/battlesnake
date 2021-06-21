@@ -1,13 +1,14 @@
 use serde::{Deserialize, Serialize};
+use std::convert::From;
 use std::fmt;
 use std::ops::{Add, Sub};
 
-use super::domove::Movement;
+use super::Direction;
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, PartialEq, Hash, Eq)]
 pub struct Point {
-    x: i32,
-    y: i32,
+    pub x: i32,
+    pub y: i32,
 }
 
 impl Point {
@@ -85,13 +86,13 @@ impl Point {
         best.clone()
     }
 
-    pub fn get_neighbour_direction(self, neighbour: Self) -> Option<Movement> {
+    pub fn get_neighbour_direction(self, neighbour: Self) -> Option<Direction> {
         let p = neighbour - self;
         match p {
-            Point { x: 1, y: 0 } => Some(Movement::Right),
-            Point { x: -1, y: 0 } => Some(Movement::Left),
-            Point { x: 0, y: 1 } => Some(Movement::Up),
-            Point { x: 0, y: -1 } => Some(Movement::Down),
+            Point { x: 1, y: 0 } => Some(Direction::Right),
+            Point { x: -1, y: 0 } => Some(Direction::Left),
+            Point { x: 0, y: 1 } => Some(Direction::Up),
+            Point { x: 0, y: -1 } => Some(Direction::Down),
             _ => None,
         }
     }
@@ -129,6 +130,17 @@ impl Add for Point {
     }
 }
 
+impl From<Direction> for Point {
+    fn from(movement: Direction) -> Self {
+        match movement {
+            Direction::Right => Point { x: 1, y: 0 },
+            Direction::Left => Point { x: -1, y: 0 },
+            Direction::Up => Point { x: 0, y: 1 },
+            Direction::Down => Point { x: 0, y: -1 },
+        }
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -153,10 +165,10 @@ mod test {
         let up = Point { x: 10, y: 11 };
         let down = Point { x: 10, y: 9 };
         let bad = Point { x: 15, y: 15 };
-        assert!(point.get_neighbour_direction(right).unwrap() == Movement::Right);
-        assert!(point.get_neighbour_direction(left).unwrap() == Movement::Left);
-        assert!(point.get_neighbour_direction(up).unwrap() == Movement::Up);
-        assert!(point.get_neighbour_direction(down).unwrap() == Movement::Down);
+        assert!(point.get_neighbour_direction(right).unwrap() == Direction::Right);
+        assert!(point.get_neighbour_direction(left).unwrap() == Direction::Left);
+        assert!(point.get_neighbour_direction(up).unwrap() == Direction::Up);
+        assert!(point.get_neighbour_direction(down).unwrap() == Direction::Down);
         assert!(point.get_neighbour_direction(bad) == None);
     }
 }

@@ -4,15 +4,15 @@ extern crate actix_web;
 use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
 
 use std::io;
-use std::time::{SystemTime, Duration};
+use std::time::{Duration, SystemTime};
 
 use log::*;
 // use log::Level::Debug;
 
 mod battlesnake;
+use battlesnake::init_logger;
 use battlesnake::Move;
 use battlesnake::SnakeProps;
-use battlesnake::init_logger;
 
 // use std::time::Instant;
 
@@ -29,7 +29,10 @@ async fn domove(data: String) -> impl Responder {
     // debug!("Received Move");
     let start_time = SystemTime::now();
     let movement = Move::new(&data);
-    let duration = SystemTime::now().duration_since(start_time).unwrap().as_millis();
+    let duration = SystemTime::now()
+        .duration_since(start_time)
+        .unwrap()
+        .as_millis();
     info!("Handled /move [{}] in {}ms", movement.movement, duration);
     HttpResponse::Ok().body(movement.get_json_string())
 }

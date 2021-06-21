@@ -1,13 +1,13 @@
 //! Tool for logging games
-//! 
+//!
 //! TO-DO
 //! list of currently ongoing games
 //! separate file for each game
 //! .input.log -> logs input data
 //! .custom.log -> should be utilized for dbg etc...
-//! 
-use log::*;
+//!
 use chrono::{DateTime, Local};
+use log::*;
 
 const LOGGER: Logger = Logger;
 
@@ -19,7 +19,12 @@ impl log::Log for Logger {
 
     fn log(&self, record: &Record) {
         let now: DateTime<Local> = Local::now();
-        println!("{} [{}] {}", now.format("%Y-%m-%d %H:%M:%S%.6f"), record.level(), record.args());
+        println!(
+            "{} [{}] {}",
+            now.format("%Y-%m-%d %H:%M:%S%.6f"),
+            record.level(),
+            record.args()
+        );
     }
 
     fn flush(&self) {}

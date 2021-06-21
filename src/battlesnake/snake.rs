@@ -1,8 +1,11 @@
 use std::convert::TryFrom;
 
 use serde::{Deserialize, Serialize};
-use super::path::Path;
+
 use super::input::ApiSnake;
+use super::path::Path;
+use super::point::Point;
+use super::Direction;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct SnakeProps {
@@ -37,19 +40,36 @@ pub struct Snake {
     pub body: Path,
 }
 
+impl Snake {
+    pub fn get_default_move(&self) -> Direction {
+        if let Some(neck) = self.neck() {
+            if let Ok(direction) = Direction::try_from(self.head() - neck) {
+                return direction;
+            }
+        }
+        Direction::Up
+    }
+
+    fn neck(&self) -> Option<Point> {
+        self.body.get_node(1)
+    }
+
+    fn head(&self) -> Point {
+        self.body.first().unwrap()
+    }
+}
+
 impl TryFrom<&ApiSnake> for Snake {
     type Error = &'static str;
 
     fn try_from(input: &ApiSnake) -> Result<Self, Self::Error> {
         if input.body.is_empty() {
-            return Err("Empty ApiSnake Body")
+            return Err("Empty ApiSnake Body");
         }
         let body = Path::from(&input.body);
-        Ok(
-            Snake {
-                health: input.health as u8,
-                body,
-            }
-        )
+        Ok(Snake {
+            health: input.health as u8,
+            body,
+        })
     }
 }

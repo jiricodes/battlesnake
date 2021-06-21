@@ -1,8 +1,8 @@
 use std::convert::TryFrom;
 
+use super::input::GameInfo;
 use super::point::Point;
 use super::snake::Snake;
-use super::input::GameInfo;
 
 #[derive(Debug)]
 pub struct Board {
@@ -15,8 +15,7 @@ impl Board {
     pub fn from_api(input: &GameInfo) -> Self {
         let mut snakes: Vec<Snake> = Vec::new();
         snakes.push(Snake::try_from(&input.you).unwrap());
-        for snake in input.board.snakes.iter()
-        {
+        for snake in input.board.snakes.iter() {
             if snake.id != input.you.id {
                 snakes.push(Snake::try_from(snake).unwrap());
             }
@@ -36,7 +35,8 @@ mod test {
 
     #[test]
     fn from_api() {
-        let gameinfo = GameInfo::new(r#"{
+        let gameinfo = GameInfo::new(
+            r#"{
             "game": {
                 "id": "5e6c3d1b-6404-403a-9803-09bd2b99224f",
                 "ruleset": {
@@ -217,15 +217,39 @@ mod test {
                 "shout": "",
                 "squad": ""
             }
-        }"#);
+        }"#,
+        );
         let board = Board::from_api(&gameinfo);
         assert_eq!(board.snakes[0].health, 98);
         assert_eq!(board.snakes[1].health, 96);
         assert_eq!(board.snakes[2].health, 100);
         assert_eq!(board.snakes[3].health, 96);
-        assert_eq!(board.snakes[0].body.nodes, vec![Point::new(6, 6), Point::new(7, 6), Point::new(8, 6), Point::new(9, 6)]);
-        assert_eq!(board.snakes[1].body.nodes, vec![Point::new(2, 6), Point::new(2, 7), Point::new(1, 7)]);
-        assert_eq!(board.snakes[2].body.nodes, vec![Point::new(0, 8), Point::new(0, 7), Point::new(0, 6), Point::new(0, 5), Point::new(0, 5)]);
-        assert_eq!(board.snakes[3].body.nodes, vec![Point::new(9, 5), Point::new(9, 4), Point::new(9, 3)]);
+        assert_eq!(
+            board.snakes[0].body.nodes,
+            vec![
+                Point::new(6, 6),
+                Point::new(7, 6),
+                Point::new(8, 6),
+                Point::new(9, 6)
+            ]
+        );
+        assert_eq!(
+            board.snakes[1].body.nodes,
+            vec![Point::new(2, 6), Point::new(2, 7), Point::new(1, 7)]
+        );
+        assert_eq!(
+            board.snakes[2].body.nodes,
+            vec![
+                Point::new(0, 8),
+                Point::new(0, 7),
+                Point::new(0, 6),
+                Point::new(0, 5),
+                Point::new(0, 5)
+            ]
+        );
+        assert_eq!(
+            board.snakes[3].body.nodes,
+            vec![Point::new(9, 5), Point::new(9, 4), Point::new(9, 3)]
+        );
     }
 }

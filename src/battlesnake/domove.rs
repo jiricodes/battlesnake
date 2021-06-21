@@ -5,35 +5,15 @@ use super::heuristic::{HeurMethod, Heuristic};
 use super::input::GameInfo;
 use super::point::Point;
 use super::Dfs;
+use super::Direction;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
-#[serde(rename_all(serialize = "lowercase", deserialize = "lowercase"))]
-pub enum Movement {
-    Right,
-    Left,
-    Up,
-    Down,
-}
-
-impl fmt::Display for Movement {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let move_text = match self {
-            Movement::Right => "right",
-            Movement::Left => "left",
-            Movement::Up => "up",
-            Movement::Down => "down",
-        };
-        write!(f, "{}", move_text)
-    }
-}
-
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Move {
     #[serde(rename = "move")]
-    pub movement: Movement,
+    pub movement: Direction,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub shout: Option<String>,
 }
@@ -158,6 +138,13 @@ impl Move {
         };
         // println!("{}: {}", sym, m);
         m
+    }
+
+    pub fn default() -> Self {
+        Self {
+            movement: Direction::Right,
+            shout: None,
+        }
     }
 
     pub fn as_option_string(input: &str) -> Option<String> {

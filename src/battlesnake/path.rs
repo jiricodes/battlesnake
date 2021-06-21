@@ -4,31 +4,28 @@ use super::Point;
 
 #[derive(Clone, PartialEq, Debug)]
 pub struct Path {
-    pub nodes: Vec<Point>
+    pub nodes: Vec<Point>,
 }
 
 impl Path {
     pub fn new() -> Self {
-        Self {
-            nodes: Vec::new(),
-        }
+        Self { nodes: Vec::new() }
     }
 
     pub fn from_vec(nodes: Vec<Point>) -> Self {
-        Self {nodes}
+        Self { nodes }
     }
-
 
     /// Extends _in front_ the path with node\[0\] + offset if the path is not empty,
     /// otherwise nothing happens.
-    /// 
+    ///
     /// # Arguments
     /// * `offset` - A `Point` to offset the first node with
-    /// 
+    ///
     /// # Example
     /// ```
     /// use path::Path;
-    /// 
+    ///
     /// let mut p = Path::from_vec(vec![Point::new(1, 1)]);
     /// let offset = Point::new(0, 1);
     /// p.extend_front(&offset);
@@ -95,8 +92,19 @@ mod test {
         ones.extend_front(&offset);
         assert_eq!(ones.nodes, vec![Point::new(4, 1), Point::new(5, 1)]);
         ones.extend_front(&offset);
-        assert_eq!(ones.nodes, vec![Point::new(3, 1), Point::new(4, 1), Point::new(5, 1)]);
+        assert_eq!(
+            ones.nodes,
+            vec![Point::new(3, 1), Point::new(4, 1), Point::new(5, 1)]
+        );
         ones.extend_front(&offset);
-        assert_eq!(ones.nodes, vec![Point::new(2, 1), Point::new(3, 1), Point::new(4, 1), Point::new(5, 1)]);
+        assert_eq!(
+            ones.nodes,
+            vec![
+                Point::new(2, 1),
+                Point::new(3, 1),
+                Point::new(4, 1),
+                Point::new(5, 1)
+            ]
+        );
     }
 }
