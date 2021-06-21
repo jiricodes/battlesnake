@@ -51,7 +51,7 @@ async fn main() -> io::Result<()> {
             .service(start)
             .service(end)
     })
-    .bind("0.0.0.0:6970")?
+    .bind("0.0.0.0:6969")?
     .run()
     .await
 }
