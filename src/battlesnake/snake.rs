@@ -1,4 +1,8 @@
+use std::convert::TryFrom;
+
 use serde::{Deserialize, Serialize};
+use super::path::Path;
+use super::input::ApiSnake;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct SnakeProps {
@@ -27,6 +31,25 @@ impl SnakeProps {
     }
 }
 
+#[derive(Debug, Clone)]
 pub struct Snake {
+    pub health: u8,
+    pub body: Path,
+}
 
+impl TryFrom<&ApiSnake> for Snake {
+    type Error = &'static str;
+
+    fn try_from(input: &ApiSnake) -> Result<Self, Self::Error> {
+        if input.body.is_empty() {
+            return Err("Empty ApiSnake Body")
+        }
+        let body = Path::from(&input.body);
+        Ok(
+            Snake {
+                health: input.health as u8,
+                body,
+            }
+        )
+    }
 }

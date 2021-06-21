@@ -2,26 +2,26 @@ use super::point::Point;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
-struct GameData {
+pub struct GameData {
     id: String,
     timeout: i32,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-struct Board {
+pub struct Board {
     height: i32,
     width: i32,
     food: Vec<Point>,
     hazards: Vec<Point>,
-    snakes: Vec<Snake>,
+    pub snakes: Vec<ApiSnake>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-struct Snake {
-    id: String,
+pub struct ApiSnake {
+    pub id: String,
     name: String,
-    health: i32,
-    body: Vec<Point>,
+    pub health: i32,
+    pub body: Vec<Point>,
     // latency: String,
     head: Point,
     length: i32,
@@ -31,10 +31,10 @@ struct Snake {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct GameInfo {
-    game: GameData,
-    turn: i32,
-    board: Board,
-    you: Snake,
+    pub game: GameData,
+    pub turn: i32,
+    pub board: Board,
+    pub you: ApiSnake,
 }
 
 impl GameInfo {

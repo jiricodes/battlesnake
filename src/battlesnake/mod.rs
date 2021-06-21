@@ -18,3 +18,4 @@ pub mod point;
 pub mod snake;
 pub mod game_logger;
 pub mod board;
+pub mod path;
