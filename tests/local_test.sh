@@ -122,5 +122,5 @@ then
 fi
 
 # stop battlesnake api
-kill %1
+pkill battlesnake
 rm -f ${tmplog} ${testsum}

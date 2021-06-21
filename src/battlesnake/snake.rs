@@ -26,3 +26,7 @@ impl SnakeProps {
         serde_json::to_string(&self).unwrap()
     }
 }
+
+pub struct Snake {
+
+}

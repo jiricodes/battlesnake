@@ -4,16 +4,21 @@ extern crate actix_web;
 use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
 
 use std::io;
+use std::time::{SystemTime, Duration};
+
+use log::*;
+// use log::Level::Debug;
 
 mod battlesnake;
 use battlesnake::Move;
 use battlesnake::SnakeProps;
+use battlesnake::init_logger;
 
 // use std::time::Instant;
 
 #[get("/")]
 async fn index() -> impl Responder {
-    println!("\nReceived Index");
+    debug!("Received Index");
     let snake = SnakeProps::new();
     // let datastr = snake.get_string();
     HttpResponse::Ok().body(snake.get_string())
@@ -21,29 +26,30 @@ async fn index() -> impl Responder {
 
 #[post("/move")]
 async fn domove(data: String) -> impl Responder {
-    // let start: Instant = Instant::now();
-    println!("\nReceived Move");
+    // debug!("Received Move");
+    let start_time = SystemTime::now();
     let movement = Move::new(&data);
-    // println!("Move: {}", &movement);
-    // println!("----\nAsnwered in {}\n---\n", start.elapsed().as_millis());
+    let duration = SystemTime::now().duration_since(start_time).unwrap().as_millis();
+    info!("Handled /move [{}] in {}ms", movement.movement, duration);
     HttpResponse::Ok().body(movement.get_json_string())
 }
 
 #[post("/start")]
 async fn start() -> impl Responder {
-    println!("Received START");
+    debug!("Received START");
     HttpResponse::Ok()
 }
 
 #[post("/end")]
 async fn end(data: String) -> impl Responder {
-    println!("Received END");
+    debug!("Received END");
     dbg!(data);
     HttpResponse::Ok()
 }
 
 #[actix_web::main]
 async fn main() -> io::Result<()> {
+    init_logger();
     HttpServer::new(|| {
         App::new()
             .service(index)

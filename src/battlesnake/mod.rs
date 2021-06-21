@@ -6,6 +6,7 @@ pub use heuristic::Heuristic;
 pub use input::GameInfo;
 pub use point::Point;
 pub use snake::SnakeProps;
+pub use game_logger::init_logger;
 
 pub mod astar;
 pub mod dfs;
@@ -15,3 +16,5 @@ pub mod heuristic;
 pub mod input;
 pub mod point;
 pub mod snake;
+pub mod game_logger;
+pub mod board;
