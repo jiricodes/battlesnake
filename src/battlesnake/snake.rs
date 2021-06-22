@@ -60,11 +60,12 @@ impl Snake {
 
     pub fn advance(&mut self, dir: &Direction) {
         self.reduce_health(1);
-        self.body.extend_front_dir(dir);
+        self.body.slide_front(dir);
     }
 
     pub fn feed(&mut self) {
         self.health = 100;
+        self.body.extend_back(&Point::zero());
     }
 
     pub fn reduce_health(&mut self, val: u8) {

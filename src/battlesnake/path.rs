@@ -46,6 +46,11 @@ impl Path {
         }
     }
 
+    pub fn extend_back(&mut self, offset: &Point) {
+        if !self.nodes.is_empty() {
+            self.nodes.push(self.last().unwrap() + *offset)
+        }
+    }
     pub fn first(&self) -> Option<Point> {
         self.nodes.first().cloned()
     }
@@ -56,6 +61,11 @@ impl Path {
 
     pub fn get_node(&self, index: usize) -> Option<Point> {
         self.nodes.get(index).cloned()
+    }
+
+    pub fn slide_front(&mut self, dir: &Direction) {
+        self.extend_front_dir(dir);
+        self.nodes.pop();
     }
 }
 
