@@ -58,8 +58,13 @@ curl https://sh.rustup.rs -sSf | sh -s -- -y
 
 ## TO-DO
 ### Minimax Rework
-- [ ] all eligible moves of all snakes at current board
+- [x] all eligible moves of all snakes at current board
 - [ ] move A* to board
+- heuristics
+    - [ ] floodfill
+    - [ ] A*
+    - [ ] aggression
+    - [ ] consider Evolutionary algo
 
 ### ASAP
 - [x] rework astar cost heur to "health cost" (e.g. normal move < hazard move costs)

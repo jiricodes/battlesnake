@@ -65,7 +65,13 @@ fn min_f32(a: f32, b: f32) -> f32 {
     }
 }
 
+
 pub fn heuristic(board: &Board, snake_index: usize) -> f32 {
+    // floodfill / area dominance
+    // A* 1.0 - distance
+    // aggression
+
+    //finally get the ratio. should implement here a weighted ratio
     0.0
 }
 
@@ -89,7 +95,8 @@ pub fn get_move(gameinfo: &GameInfo, time_budget: Duration) -> Move {
         }
 
         if SystemTime::now().duration_since(time_start).unwrap() >= time_budget {
-            info!("Time Budget Ran Out. Explored {}", cnt_explored);
+            info!("Time Budget Ran Out. Explored {} Depth {}", cnt_explored, first.depth);
+            println!("Time Budget Ran Out. Explored {} Depth {}", cnt_explored, first.depth);
             break 'minimax;
         }
 
@@ -114,9 +121,9 @@ pub fn get_move(gameinfo: &GameInfo, time_budget: Duration) -> Move {
                     root: Some(first.root.unwrap_or(my_move)),
                     depth: first.depth + 1,
                     h: match cod {
-                        CauseOfDeath::HeadToHead => -1000.0,
-                        CauseOfDeath::OutOfHealth => -1100.0,
-                        _ => -3000.0,
+                        CauseOfDeath::HeadToHead => -1.0,
+                        CauseOfDeath::OutOfHealth => -2.0,
+                        _ => -3.0,
                     },
                 });
             } else {
@@ -143,10 +150,10 @@ pub fn get_move(gameinfo: &GameInfo, time_budget: Duration) -> Move {
 
         for worst_outcome in worst_outcomes.lock().unwrap().iter_mut() {
             if let Some(state) = worst_outcome.take() {
+                if state.depth == 2 {
+                    println!("Depth 1 option: dir={:?} score={}", state.root, state.h);
+                }
                 if state.h >= 0.0 {
-                    // if log_enabled!(Debug) && frontier_board.depth == 1 {
-                    //     debug!("Depth 1 option: dir={:?} score={}\n{}", frontier_board.root_dir, frontier_board.h_score, draw_board(&frontier_board.board));
-                    // }
                     queue.push(state);
                 }
             }
@@ -164,7 +171,420 @@ mod test {
     use super::*;
 
     #[test]
-    fn simple() {
-        unimplemented!();
+    fn test_test() {
+        let data = GameInfo::new(r#"
+        {
+            "game": {
+                "id": "66a99167-b263-4c9f-988e-087f5df286be",
+                "ruleset": {
+                    "name": "royale",
+                    "version": ""
+                },
+                "timeout": 500
+            },
+            "turn": 85,
+            "board": {
+                "width": 11,
+                "height": 11,
+                "snakes": [
+                    {
+                        "id": "gs_bDM7cytwR9pKPcWFwFMY6BcW",
+                        "name": "Go  Giddy",
+                        "body": [
+                            {
+                                "x": 10,
+                                "y": 5
+                            },
+                            {
+                                "x": 9,
+                                "y": 5
+                            },
+                            {
+                                "x": 8,
+                                "y": 5
+                            },
+                            {
+                                "x": 7,
+                                "y": 5
+                            },
+                            {
+                                "x": 6,
+                                "y": 5
+                            },
+                            {
+                                "x": 6,
+                                "y": 4
+                            },
+                            {
+                                "x": 7,
+                                "y": 4
+                            },
+                            {
+                                "x": 8,
+                                "y": 4
+                            },
+                            {
+                                "x": 9,
+                                "y": 4
+                            }
+                        ],
+                        "head": {
+                            "x": 10,
+                            "y": 5
+                        },
+                        "length": 9,
+                        "health": 88,
+                        "shout": "",
+                        "squad": ""
+                    },
+                    {
+                        "id": "gs_MPSPTppCcQWCYCHy6TrvHhmK",
+                        "name": "DDT",
+                        "body": [
+                            {
+                                "x": 7,
+                                "y": 0
+                            },
+                            {
+                                "x": 6,
+                                "y": 0
+                            },
+                            {
+                                "x": 6,
+                                "y": 1
+                            },
+                            {
+                                "x": 5,
+                                "y": 1
+                            },
+                            {
+                                "x": 5,
+                                "y": 0
+                            },
+                            {
+                                "x": 4,
+                                "y": 0
+                            },
+                            {
+                                "x": 4,
+                                "y": 1
+                            },
+                            {
+                                "x": 4,
+                                "y": 2
+                            },
+                            {
+                                "x": 3,
+                                "y": 2
+                            },
+                            {
+                                "x": 2,
+                                "y": 2
+                            }
+                        ],
+                        "head": {
+                            "x": 7,
+                            "y": 0
+                        },
+                        "length": 10,
+                        "health": 5,
+                        "shout": "Out of my way!",
+                        "squad": ""
+                    },
+                    {
+                        "id": "gs_VVTvwpQRmtB8xKH6xxTKgxD4",
+                        "name": "spaceworm",
+                        "body": [
+                            {
+                                "x": 7,
+                                "y": 6
+                            },
+                            {
+                                "x": 6,
+                                "y": 6
+                            },
+                            {
+                                "x": 5,
+                                "y": 6
+                            },
+                            {
+                                "x": 5,
+                                "y": 5
+                            },
+                            {
+                                "x": 5,
+                                "y": 4
+                            },
+                            {
+                                "x": 4,
+                                "y": 4
+                            },
+                            {
+                                "x": 4,
+                                "y": 3
+                            },
+                            {
+                                "x": 3,
+                                "y": 3
+                            },
+                            {
+                                "x": 3,
+                                "y": 4
+                            },
+                            {
+                                "x": 3,
+                                "y": 5
+                            }
+                        ],
+                        "head": {
+                            "x": 7,
+                            "y": 6
+                        },
+                        "length": 10,
+                        "health": 87,
+                        "shout": "",
+                        "squad": ""
+                    }
+                ],
+                "food": [
+                    {
+                        "x": 2,
+                        "y": 7
+                    },
+                    {
+                        "x": 10,
+                        "y": 7
+                    },
+                    {
+                        "x": 8,
+                        "y": 9
+                    },
+                    {
+                        "x": 0,
+                        "y": 0
+                    }
+                ],
+                "hazards": [
+                    {
+                        "x": 0,
+                        "y": 0
+                    },
+                    {
+                        "x": 0,
+                        "y": 1
+                    },
+                    {
+                        "x": 0,
+                        "y": 2
+                    },
+                    {
+                        "x": 0,
+                        "y": 3
+                    },
+                    {
+                        "x": 0,
+                        "y": 4
+                    },
+                    {
+                        "x": 0,
+                        "y": 5
+                    },
+                    {
+                        "x": 0,
+                        "y": 6
+                    },
+                    {
+                        "x": 0,
+                        "y": 7
+                    },
+                    {
+                        "x": 0,
+                        "y": 8
+                    },
+                    {
+                        "x": 0,
+                        "y": 9
+                    },
+                    {
+                        "x": 0,
+                        "y": 10
+                    },
+                    {
+                        "x": 1,
+                        "y": 0
+                    },
+                    {
+                        "x": 1,
+                        "y": 1
+                    },
+                    {
+                        "x": 1,
+                        "y": 10
+                    },
+                    {
+                        "x": 2,
+                        "y": 0
+                    },
+                    {
+                        "x": 2,
+                        "y": 1
+                    },
+                    {
+                        "x": 2,
+                        "y": 10
+                    },
+                    {
+                        "x": 3,
+                        "y": 0
+                    },
+                    {
+                        "x": 3,
+                        "y": 1
+                    },
+                    {
+                        "x": 3,
+                        "y": 10
+                    },
+                    {
+                        "x": 4,
+                        "y": 0
+                    },
+                    {
+                        "x": 4,
+                        "y": 1
+                    },
+                    {
+                        "x": 4,
+                        "y": 10
+                    },
+                    {
+                        "x": 5,
+                        "y": 0
+                    },
+                    {
+                        "x": 5,
+                        "y": 1
+                    },
+                    {
+                        "x": 5,
+                        "y": 10
+                    },
+                    {
+                        "x": 6,
+                        "y": 0
+                    },
+                    {
+                        "x": 6,
+                        "y": 1
+                    },
+                    {
+                        "x": 6,
+                        "y": 10
+                    },
+                    {
+                        "x": 7,
+                        "y": 0
+                    },
+                    {
+                        "x": 7,
+                        "y": 1
+                    },
+                    {
+                        "x": 7,
+                        "y": 10
+                    },
+                    {
+                        "x": 8,
+                        "y": 0
+                    },
+                    {
+                        "x": 8,
+                        "y": 1
+                    },
+                    {
+                        "x": 8,
+                        "y": 10
+                    },
+                    {
+                        "x": 9,
+                        "y": 0
+                    },
+                    {
+                        "x": 9,
+                        "y": 1
+                    },
+                    {
+                        "x": 9,
+                        "y": 10
+                    },
+                    {
+                        "x": 10,
+                        "y": 0
+                    },
+                    {
+                        "x": 10,
+                        "y": 1
+                    },
+                    {
+                        "x": 10,
+                        "y": 10
+                    }
+                ]
+            },
+            "you": {
+                "id": "gs_bDM7cytwR9pKPcWFwFMY6BcW",
+                "name": "Go  Giddy",
+                "body": [
+                    {
+                        "x": 10,
+                        "y": 5
+                    },
+                    {
+                        "x": 9,
+                        "y": 5
+                    },
+                    {
+                        "x": 8,
+                        "y": 5
+                    },
+                    {
+                        "x": 7,
+                        "y": 5
+                    },
+                    {
+                        "x": 6,
+                        "y": 5
+                    },
+                    {
+                        "x": 6,
+                        "y": 4
+                    },
+                    {
+                        "x": 7,
+                        "y": 4
+                    },
+                    {
+                        "x": 8,
+                        "y": 4
+                    },
+                    {
+                        "x": 9,
+                        "y": 4
+                    }
+                ],
+                "head": {
+                    "x": 10,
+                    "y": 5
+                },
+                "length": 9,
+                "health": 88,
+                "shout": "",
+                "squad": ""
+            }
+        }
+        "#);
+        // https://play.battlesnake.com/g/66a99167-b263-4c9f-988e-087f5df286be/?turn=0
+        let res = get_move(&data, Duration::from_millis(280));
+        dbg!(res);
     }
 }

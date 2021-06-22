@@ -39,16 +39,26 @@ impl Board {
         }
     }
 
+    pub fn get_pruned_moves(&self, p: &Point) -> Vec<Direction> {
+        ALL_DIRECTIONS.iter().cloned().filter(|dir| {
+            let new = *p + *dir;
+            self.is_inbounds(&new) && self.snakes.iter().all(|snake| {
+                if new.manhattan_distance(&snake.head()) as usize > snake.size() {
+                    true
+                } else if let Some(i) = snake.is_collision(&new) {
+                    snake.size() > 0 && i >= snake.size() - 1
+                } else {
+                    true
+                }
+            })
+        }).collect()
+    }
+
     pub fn get_all_moves(&self) -> Vec<Vec<Direction>> {
         let mut ret: Vec<Vec<Direction>> = Vec::new();
         for snake in self.snakes.iter() {
             // iterate over all directions and remove the conflicting ones
-            let mut new: Vec<Direction> = Vec::new();
-            for dir in ALL_DIRECTIONS.iter() {
-                if snake.head() + dir != snake.neck().unwrap() {
-                    new.push(*dir);
-                } // should check for more pruning? e.g. snakes that are further than my_len / 2?
-            }
+            let mut new: Vec<Direction> = self.get_pruned_moves(&snake.head());
             if new.is_empty() {
                 new.push(snake.get_default_move());
             }
