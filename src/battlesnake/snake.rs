@@ -77,7 +77,7 @@ impl Snake {
     }
 
     pub fn has_health(&self) -> bool {
-        !(self.health == 0)
+        self.health != 0
     }
 
     pub fn is_collision(&self, p: &Point) -> Option<usize> {
@@ -101,5 +101,60 @@ impl TryFrom<&ApiSnake> for Snake {
             health: input.health as u8,
             body,
         })
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn basics() {
+        let mut snake = Snake {
+            health: 50,
+            body: Path::from_vec(vec![
+                Point { x: 9, y: 3 },
+                Point { x: 9, y: 4 },
+                Point { x: 9, y: 5 },
+                Point { x: 8, y: 5 },
+                Point { x: 7, y: 5 },
+                Point { x: 7, y: 6 },
+            ]),
+        };
+        assert_eq!(snake.size(), 6);
+        assert_eq!(snake.get_default_move(), Direction::Down);
+        assert_eq!(snake.neck(), Some(Point { x: 9, y: 4 }));
+        assert_eq!(snake.head(), Point { x: 9, y: 3 });
+        snake.advance(&Direction::Down);
+        assert_eq!(snake.size(), 6);
+        assert_eq!(snake.body.nodes, vec![
+            Point { x: 9, y: 2 },
+            Point { x: 9, y: 3 },
+            Point { x: 9, y: 4 },
+            Point { x: 9, y: 5 },
+            Point { x: 8, y: 5 },
+            Point { x: 7, y: 5 }]);
+        assert_eq!(snake.health, 49);
+        assert_eq!(snake.has_health(), true);
+        snake.reduce_health(9);
+        assert_eq!(snake.health, 40);
+        snake.reduce_health(45);
+        assert_eq!(snake.health, 0);
+        assert_eq!(snake.has_health(), false);
+        snake.feed();
+        assert_eq!(snake.health, 100);
+        assert_eq!(snake.has_health(), true);
+        assert_eq!(snake.size(), 7);
+        assert_eq!(snake.body.nodes, vec![
+            Point { x: 9, y: 2 },
+            Point { x: 9, y: 3 },
+            Point { x: 9, y: 4 },
+            Point { x: 9, y: 5 },
+            Point { x: 8, y: 5 },
+            Point { x: 7, y: 5 },
+            Point { x: 7, y: 5 }]);
+        assert_eq!(snake.is_collision(&Point { x: 9, y: 4 }), Some(2));
+        assert_eq!(snake.is_collision(&Point { x: 7, y: 5 }), Some(5));
+        assert_eq!(snake.is_collision(&Point { x: 7, y: 6 }), None);
     }
 }

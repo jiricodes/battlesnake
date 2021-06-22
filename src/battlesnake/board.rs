@@ -103,8 +103,9 @@ impl Board {
                                 return Some((i, CauseOfDeath::HeadToHead));
                             }
                         }
-                    } else if other_snake.is_collision(&snake_head).is_some() {
-                        return Some((i, CauseOfDeath::SelfCollision));
+                    } else if let Some(col) = other_snake.is_collision(&snake_head) {
+                        if col != 0 {
+                        return Some((i, CauseOfDeath::SelfCollision));}
                     }
                 }
                 None
@@ -582,30 +583,321 @@ mod test {
                     "shout": "",
                     "squad": ""
                 }
-            }"#);
-            let board = Board::from_api(&gameinfo);
-            let all_moves = board.get_all_moves();
-            dbg!(&all_moves);
-            assert_eq!(all_moves, vec![
+            }"#,
+        );
+        let board = Board::from_api(&gameinfo);
+        let all_moves = board.get_all_moves();
+        assert_eq!(
+            all_moves,
             vec![
-                Direction::Right,
-                Direction::Left,
-                Direction::Down,
-            ],
-            vec![
-                Direction::Right,
-                Direction::Left,
-                Direction::Up,
-            ],
-            vec![
-                Direction::Right,
-                Direction::Left,
-                Direction::Down,
-            ],
-            vec![
-                Direction::Right,
-                Direction::Left,
-                Direction::Down,
-            ]]);
+                vec![Direction::Right, Direction::Left, Direction::Down,],
+                vec![Direction::Right, Direction::Left, Direction::Up,],
+                vec![Direction::Right, Direction::Left, Direction::Down,],
+                vec![Direction::Right, Direction::Left, Direction::Down,]
+            ]
+        );
+    }
+
+    #[test]
+    fn advance() {
+        let gameinfo = GameInfo::new(
+            r#"{
+            "game": {
+                "id": "2c2d43ec-0fdb-4bf4-9a00-8f1d243238d4",
+                "ruleset": {
+                    "name": "royale",
+                    "version": ""
+                },
+                "timeout": 500
+            },
+            "turn": 32,
+            "board": {
+                "width": 11,
+                "height": 11,
+                "snakes": [
+                    {
+                        "id": "gs_9Xdgwh9wPKktBtXphrMt4d67",
+                        "name": "Eel In Snake's Clothing",
+                        "body": [
+                            {
+                                "x": 3,
+                                "y": 7
+                            },
+                            {
+                                "x": 4,
+                                "y": 7
+                            },
+                            {
+                                "x": 4,
+                                "y": 8
+                            },
+                            {
+                                "x": 5,
+                                "y": 8
+                            },
+                            {
+                                "x": 6,
+                                "y": 8
+                            }
+                        ],
+                        "head": {
+                            "x": 3,
+                            "y": 7
+                        },
+                        "length": 5,
+                        "health": 88,
+                        "shout": "",
+                        "squad": ""
+                    },
+                    {
+                        "id": "gs_fhDCrB9BmRfgWBgXj9cBCxqR",
+                        "name": "Go  Giddy",
+                        "body": [
+                            {
+                                "x": 9,
+                                "y": 3
+                            },
+                            {
+                                "x": 9,
+                                "y": 4
+                            },
+                            {
+                                "x": 9,
+                                "y": 5
+                            },
+                            {
+                                "x": 8,
+                                "y": 5
+                            },
+                            {
+                                "x": 7,
+                                "y": 5
+                            },
+                            {
+                                "x": 7,
+                                "y": 6
+                            },
+                            {
+                                "x": 7,
+                                "y": 6
+                            }
+                        ],
+                        "head": {
+                            "x": 9,
+                            "y": 3
+                        },
+                        "length": 7,
+                        "health": 100,
+                        "shout": "",
+                        "squad": ""
+                    },
+                    {
+                        "id": "gs_KTTWwyytWTBjgXkyh8gDp9VD",
+                        "name": "Untimely Neglected Wearable",
+                        "body": [
+                            {
+                                "x": 7,
+                                "y": 3
+                            },
+                            {
+                                "x": 7,
+                                "y": 2
+                            },
+                            {
+                                "x": 8,
+                                "y": 2
+                            },
+                            {
+                                "x": 9,
+                                "y": 2
+                            },
+                            {
+                                "x": 9,
+                                "y": 1
+                            },
+                            {
+                                "x": 8,
+                                "y": 1
+                            },
+                            {
+                                "x": 7,
+                                "y": 1
+                            }
+                        ],
+                        "head": {
+                            "x": 7,
+                            "y": 3
+                        },
+                        "length": 7,
+                        "health": 96,
+                        "shout": "",
+                        "squad": ""
+                    },
+                    {
+                        "id": "gs_8fMbQg9DHB9fMGxR7Hv39P9Q",
+                        "name": "Danger Noodle - A*/Flood",
+                        "body": [
+                            {
+                                "x": 6,
+                                "y": 4
+                            },
+                            {
+                                "x": 6,
+                                "y": 3
+                            },
+                            {
+                                "x": 6,
+                                "y": 2
+                            },
+                            {
+                                "x": 5,
+                                "y": 2
+                            },
+                            {
+                                "x": 4,
+                                "y": 2
+                            }
+                        ],
+                        "head": {
+                            "x": 6,
+                            "y": 4
+                        },
+                        "length": 5,
+                        "health": 80,
+                        "shout": "",
+                        "squad": ""
+                    }
+                ],
+                "food": [
+                    {
+                        "x": 10,
+                        "y": 6
+                    }
+                ],
+                "hazards": [
+                    {
+                        "x": 10,
+                        "y": 0
+                    },
+                    {
+                        "x": 10,
+                        "y": 1
+                    },
+                    {
+                        "x": 10,
+                        "y": 2
+                    },
+                    {
+                        "x": 10,
+                        "y": 3
+                    },
+                    {
+                        "x": 10,
+                        "y": 4
+                    },
+                    {
+                        "x": 10,
+                        "y": 5
+                    },
+                    {
+                        "x": 10,
+                        "y": 6
+                    },
+                    {
+                        "x": 10,
+                        "y": 7
+                    },
+                    {
+                        "x": 10,
+                        "y": 8
+                    },
+                    {
+                        "x": 10,
+                        "y": 9
+                    },
+                    {
+                        "x": 10,
+                        "y": 10
+                    }
+                ]
+            },
+            "you": {
+                "id": "gs_fhDCrB9BmRfgWBgXj9cBCxqR",
+                "name": "Go  Giddy",
+                "body": [
+                    {
+                        "x": 9,
+                        "y": 3
+                    },
+                    {
+                        "x": 9,
+                        "y": 4
+                    },
+                    {
+                        "x": 9,
+                        "y": 5
+                    },
+                    {
+                        "x": 8,
+                        "y": 5
+                    },
+                    {
+                        "x": 7,
+                        "y": 5
+                    },
+                    {
+                        "x": 7,
+                        "y": 6
+                    },
+                    {
+                        "x": 7,
+                        "y": 6
+                    }
+                ],
+                "head": {
+                    "x": 9,
+                    "y": 3
+                },
+                "length": 7,
+                "health": 100,
+                "shout": "",
+                "squad": ""
+            }
+        }"#,
+        );
+        let board = Board::from_api(&gameinfo);
+        let hazards = gameinfo.get_hazards();
+        //  [Right, Left, Down]
+        //  [Left, Up, Down]
+        //  [Right, Left, Up]
+        //  [Right, Left, Up],
+
+        // Expected: OK, OK, OK, OK
+        let moves = vec![
+            Direction::Right,
+            Direction::Left,
+            Direction::Right,
+            Direction::Right,
+        ];
+        let mut new_board = board.clone();
+        let res = new_board.advance_snakes(&moves, &hazards);
+        let expected: HashMap<usize, CauseOfDeath> = HashMap::new();
+        assert_eq!(res, expected);
+        // Expected: HeadCollision, OK, HeadCollision, OK
+        let moves = vec![Direction::Left, Direction::Left, Direction::Right, Direction::Right];
+        let mut new_board = board.clone();
+        let res = new_board.advance_snakes(&moves, &hazards);
+        let mut expected: HashMap<usize, CauseOfDeath> = HashMap::new();
+        expected.insert(2, CauseOfDeath::HeadToHead);
+        expected.insert(0, CauseOfDeath::HeadToHead);
+        assert_eq!(res, expected);
+        // // Expected: CollisionOther, OK, CollisionOther, OK
+        let moves = vec![Direction::Down, Direction::Left, Direction::Left, Direction::Right];
+        let mut new_board = board.clone();
+        let res = new_board.advance_snakes(&moves, &hazards);
+        let mut expected: HashMap<usize, CauseOfDeath> = HashMap::new();
+        expected.insert(2, CauseOfDeath::OtherCollision);
+        expected.insert(0, CauseOfDeath::OtherCollision);
+        assert_eq!(res, expected);
     }
 }
