@@ -23,6 +23,18 @@ pub enum Direction {
     Down,
 }
 
+impl Direction {
+    #[inline]
+    pub fn as_index(&self) -> usize {
+        match self {
+            Direction::Right => 0,
+            Direction::Left => 1,
+            Direction::Up => 2,
+            Direction::Down => 3,
+        }
+    }
+}
+
 impl fmt::Display for Direction {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let move_text = match self {

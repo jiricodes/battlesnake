@@ -9,9 +9,9 @@ use std::collections::BinaryHeap;
 use std::collections::HashMap;
 
 // custom
-use super::{GameGrid, GridObject};
 use super::Heuristic;
 use super::Point;
+use super::{GameGrid, GridObject};
 
 #[derive(Eq, Clone, Debug)]
 struct AstarNode {

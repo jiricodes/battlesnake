@@ -50,12 +50,41 @@ impl Snake {
         Direction::Up
     }
 
-    fn neck(&self) -> Option<Point> {
+    pub fn neck(&self) -> Option<Point> {
         self.body.get_node(1)
     }
 
-    fn head(&self) -> Point {
+    pub fn head(&self) -> Point {
         self.body.first().unwrap()
+    }
+
+    pub fn advance(&mut self, dir: &Direction) {
+        self.reduce_health(1);
+        self.body.extend_front_dir(dir);
+    }
+
+    pub fn feed(&mut self) {
+        self.health = 100;
+    }
+
+    pub fn reduce_health(&mut self, val: u8) {
+        if self.health >= val {
+            self.health -= val;
+        } else {
+            self.health = 0;
+        }
+    }
+
+    pub fn has_health(&self) -> bool {
+        !(self.health == 0)
+    }
+
+    pub fn is_collision(&self, p: &Point) -> Option<usize> {
+        self.body.nodes.iter().position(|x| x == p)
+    }
+
+    pub fn size(&self) -> usize {
+        self.body.nodes.len()
     }
 }
 

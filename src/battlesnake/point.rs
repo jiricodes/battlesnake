@@ -16,6 +16,10 @@ impl Point {
         Self { x, y }
     }
 
+    pub fn zero() -> Self {
+        Self { x: 0, y: 0 }
+    }
+
     pub fn get_x(&self) -> i32 {
         self.x
     }
@@ -101,6 +105,10 @@ impl Point {
     pub fn is_neighbour(self, other: Point) -> bool {
         self.manhattan_distance(&other) == 1
     }
+
+    pub fn is_not_negative(&self) -> bool {
+        self.x >= 0 && self.y >= 0
+    }
 }
 
 impl fmt::Display for Point {
@@ -113,6 +121,17 @@ impl Sub for Point {
     type Output = Self;
 
     fn sub(self, other: Self) -> Self::Output {
+        Self {
+            x: self.x - other.x,
+            y: self.y - other.y,
+        }
+    }
+}
+
+impl Sub<&Point> for Point {
+    type Output = Self;
+
+    fn sub(self, other: &Self) -> Self::Output {
         Self {
             x: self.x - other.x,
             y: self.y - other.y,
@@ -214,5 +233,13 @@ mod test {
         assert!(point.get_neighbour_direction(up).unwrap() == Direction::Up);
         assert!(point.get_neighbour_direction(down).unwrap() == Direction::Down);
         assert!(point.get_neighbour_direction(bad) == None);
+        assert_eq!(point + Direction::Right, right);
+        assert_eq!(point + Direction::Left, left);
+        assert_eq!(point + Direction::Up, up);
+        assert_eq!(point + Direction::Down, down);
+        assert_eq!(point + &Direction::Right, right);
+        assert_eq!(point + &Direction::Left, left);
+        assert_eq!(point + &Direction::Up, up);
+        assert_eq!(point + &Direction::Down, down);
     }
 }

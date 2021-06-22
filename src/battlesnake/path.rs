@@ -1,5 +1,6 @@
 use std::convert::From;
 
+use super::Direction;
 use super::Point;
 
 #[derive(Clone, PartialEq, Debug)]
@@ -34,6 +35,13 @@ impl Path {
     pub fn extend_front(&mut self, offset: &Point) {
         if !self.nodes.is_empty() {
             let new_head = self.nodes[0] + *offset;
+            self.nodes.insert(0, new_head);
+        }
+    }
+
+    pub fn extend_front_dir(&mut self, dir: &Direction) {
+        if !self.nodes.is_empty() {
+            let new_head = self.nodes[0] + *dir;
             self.nodes.insert(0, new_head);
         }
     }
@@ -103,6 +111,39 @@ mod test {
                 Point::new(2, 1),
                 Point::new(3, 1),
                 Point::new(4, 1),
+                Point::new(5, 1)
+            ]
+        );
+    }
+
+    #[test]
+    fn extend_dir() {
+        let mut path = Path::from_vec(vec![Point::new(5, 1)]);
+        path.extend_front_dir(&Direction::Right);
+        assert_eq!(path.nodes, vec![Point::new(6, 1), Point::new(5, 1)]);
+        path.extend_front_dir(&Direction::Up);
+        assert_eq!(
+            path.nodes,
+            vec![Point::new(6, 2), Point::new(6, 1), Point::new(5, 1)]
+        );
+        path.extend_front_dir(&Direction::Left);
+        assert_eq!(
+            path.nodes,
+            vec![
+                Point::new(5, 2),
+                Point::new(6, 2),
+                Point::new(6, 1),
+                Point::new(5, 1)
+            ]
+        );
+        path.extend_front_dir(&Direction::Down);
+        assert_eq!(
+            path.nodes,
+            vec![
+                Point::new(5, 1),
+                Point::new(5, 2),
+                Point::new(6, 2),
+                Point::new(6, 1),
                 Point::new(5, 1)
             ]
         );

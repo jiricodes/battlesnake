@@ -1,6 +1,6 @@
 pub use astar::Astar;
 pub use dfs::Dfs;
-pub use direction::Direction;
+pub use direction::{Direction, ALL_DIRECTIONS};
 pub use domove::Move;
 pub use game_logger::init_logger;
 pub use grid::{GameGrid, GridObject};
