@@ -3,29 +3,29 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct GameData {
-    id: String,
-    timeout: i32,
+    pub id: String,
+    pub timeout: i32,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Board {
-    height: i32,
-    width: i32,
-    food: Vec<Point>,
-    hazards: Vec<Point>,
+    pub height: i32,
+    pub width: i32,
+    pub food: Vec<Point>,
+    pub hazards: Vec<Point>,
     pub snakes: Vec<ApiSnake>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ApiSnake {
     pub id: String,
-    name: String,
+    pub name: String,
     pub health: i32,
     pub body: Vec<Point>,
     // latency: String,
-    head: Point,
-    length: i32,
-    shout: String,
+    pub head: Point,
+    pub length: i32,
+    pub shout: String,
     // squad: String
 }
 
@@ -109,6 +109,14 @@ impl GameInfo {
 
     pub fn get_my_length(&self) -> i32 {
         self.you.length
+    }
+
+    pub fn get_heads(&self) -> Vec<Point> {
+        let mut heads: Vec<Point> = Vec::new();
+        for snake in self.board.snakes.iter() {
+            heads.push(snake.head);
+        }
+        heads
     }
 }
 

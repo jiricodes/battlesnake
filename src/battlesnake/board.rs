@@ -39,14 +39,14 @@ impl Board {
         }
     }
 
-    pub fn get_pruned_moves(&self, p: &Point) -> Vec<Direction> {
+    pub fn get_pruned_moves(&self, p: &Point, n: usize) -> Vec<Direction> {
         ALL_DIRECTIONS.iter().cloned().filter(|dir| {
             let new = *p + *dir;
             self.is_inbounds(&new) && self.snakes.iter().all(|snake| {
                 if new.manhattan_distance(&snake.head()) as usize > snake.size() {
                     true
                 } else if let Some(i) = snake.is_collision(&new) {
-                    snake.size() > 0 && i >= snake.size() - 1
+                    snake.size() >= n && i >= snake.size() - n
                 } else {
                     true
                 }
@@ -58,7 +58,7 @@ impl Board {
         let mut ret: Vec<Vec<Direction>> = Vec::new();
         for snake in self.snakes.iter() {
             // iterate over all directions and remove the conflicting ones
-            let mut new: Vec<Direction> = self.get_pruned_moves(&snake.head());
+            let mut new: Vec<Direction> = self.get_pruned_moves(&snake.head(), 1);
             if new.is_empty() {
                 new.push(snake.get_default_move());
             }
@@ -399,6 +399,7 @@ mod test {
 
     #[test]
     fn available_moves() {
+        use super::super::GameGrid;
         let gameinfo = GameInfo::new(
             r#"{
                 "game": {
@@ -597,6 +598,8 @@ mod test {
         );
         let board = Board::from_api(&gameinfo);
         let all_moves = board.get_all_moves();
+        let grid = GameGrid::from_api(&gameinfo);
+        println!("{}", grid);
         assert_eq!(
             all_moves,
             vec![
