@@ -47,7 +47,7 @@ async fn start() -> impl Responder {
 #[post("/end")]
 async fn end(data: String) -> impl Responder {
     debug!("Received END");
-    dbg!(data);
+    // dbg!(data);
     HttpResponse::Ok()
 }
 
@@ -61,7 +61,7 @@ async fn main() -> io::Result<()> {
             .service(start)
             .service(end)
     })
-    .bind("0.0.0.0:6970")?
+    .bind("0.0.0.0:6969")?
     .run()
     .await
 }

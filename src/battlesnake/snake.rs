@@ -25,7 +25,7 @@ impl SnakeProps {
             color: String::from("#622BAA"),
             head: String::from("evil"),
             tail: String::from("rattle"),
-            version: String::from("0.0.1"),
+            version: String::from("0.1.0"),
         }
     }
 

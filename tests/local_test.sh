@@ -1,6 +1,6 @@
 #! /bin/bash
 
-num_games=100
+num_games=250
 
 #args
 if [ "$1" == "-q" ]
@@ -11,14 +11,14 @@ else
 fi
 
 # Adversary number 1
-s1_name="V0.0.2"
-s1_bin=./battlesnake-v0.0.2
-s1_add="http://127.0.0.1:6969"
+s1_name="V0.1.0"
+s1_bin=./minimax-v0.1.0
+s1_add="http://127.0.0.1:6970"
 s1_log="logs-${s1_name}"
 
 # My current snake
 my_name="CurrentWork"
-my_add="http://127.0.0.1:6970"
+my_add="http://127.0.0.1:6969"
 my_dir=/home/jiricodes/Documents/battlesnake/
 my_bin=${my_dir}Cargo.toml
 

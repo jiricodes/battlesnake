@@ -214,6 +214,10 @@ impl GameStateLog {
     }
 }
 
+// pub struct SessionStats {
+    
+// }
+
 #[cfg(test)]
 mod test {
     use super::*;
