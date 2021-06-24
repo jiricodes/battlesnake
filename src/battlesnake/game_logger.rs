@@ -8,7 +8,7 @@
 //!
 use chrono::{DateTime, Local};
 use log::*;
-use colored::Colorize;
+use colored::{Colorize, ColoredString};
 
 use std::fmt;
 
@@ -157,6 +157,7 @@ impl GameGridLog {
 
     pub fn print(&self) {
         let l = self.data.len() - 1;
+        let mut line: Vec<ColoredString> = Vec::new();
         for (i, cell) in self.data.iter().rev().enumerate() {
             let mut val = if self.snake_heads.contains(&(l - i)) {
                 format!("{}", cell).green()
@@ -166,15 +167,19 @@ impl GameGridLog {
             if self.hazards.contains(&(l - i)) {
                 val = val.on_color("red");
             }
-            print!("{}", val);
+            line.push(val);
             if (i + 1) % self.width == 0 {
+                for c in line.iter().rev() {
+                    print!("{}", c);
+                }
                 println!();
+                line.clear();
             }
         }
     }
 }
 
-struct GameStateLog {
+pub struct GameStateLog {
     grid: GameGridLog,
     snake_legend: Vec<(usize, String, i32)>,
     game_legend: i32,

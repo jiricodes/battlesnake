@@ -167,6 +167,7 @@ impl Board {
 #[cfg(test)]
 mod test {
     use super::*;
+    use super::super::game_logger::GameStateLog;
 
     #[test]
     fn from_api() {
@@ -598,14 +599,14 @@ mod test {
         );
         let board = Board::from_api(&gameinfo);
         let all_moves = board.get_all_moves();
-        let grid = GameGrid::from_api(&gameinfo);
-        println!("{}", grid);
+        let state_log = GameStateLog::from_api(&gameinfo);
+        state_log.print();
         assert_eq!(
             all_moves,
             vec![
-                vec![Direction::Right, Direction::Left, Direction::Down,],
+                vec![Direction::Right, Direction::Left,],
                 vec![Direction::Right, Direction::Left, Direction::Up,],
-                vec![Direction::Right, Direction::Left, Direction::Down,],
+                vec![Direction::Right,],
                 vec![Direction::Right, Direction::Left, Direction::Down,]
             ]
         );
