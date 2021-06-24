@@ -1,5 +1,5 @@
-use super::Point;
 use super::GameInfo;
+use super::Point;
 
 use std::fmt;
 

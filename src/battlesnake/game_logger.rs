@@ -7,13 +7,13 @@
 //! .custom.log -> should be utilized for dbg etc...
 //!
 use chrono::{DateTime, Local};
+use colored::{ColoredString, Colorize};
 use log::*;
-use colored::{Colorize, ColoredString};
 
 use std::fmt;
 
-use super::Point;
 use super::GameInfo;
+use super::Point;
 
 const LOGGER: Logger = Logger;
 
@@ -69,7 +69,6 @@ impl fmt::Display for GridObjectLog {
         write!(f, "{}", symbol)
     }
 }
-
 
 pub struct GameGridLog {
     height: usize,
@@ -189,9 +188,13 @@ impl GameStateLog {
     pub fn from_api(data: &GameInfo) -> Self {
         Self {
             grid: GameGridLog::from_api(data),
-            snake_legend: data.board.snakes.iter().enumerate().map(|(i, snake)| {
-                return (i, snake.name.clone(), snake.health)
-            }).collect(),
+            snake_legend: data
+                .board
+                .snakes
+                .iter()
+                .enumerate()
+                .map(|(i, snake)| return (i, snake.name.clone(), snake.health))
+                .collect(),
             game_legend: data.get_turn(),
         }
     }
@@ -199,7 +202,12 @@ impl GameStateLog {
     pub fn print(&self) {
         println!("Turn {}", self.game_legend);
         for snake in self.snake_legend.iter() {
-            println!("[ {:3} | {} ] {}", snake.2, GridObjectLog::Snake(snake.0), snake.1);
+            println!(
+                "[ {:3} | {} ] {}",
+                snake.2,
+                GridObjectLog::Snake(snake.0),
+                snake.1
+            );
         }
         self.grid.print();
         println!();
@@ -212,7 +220,8 @@ mod test {
 
     #[test]
     fn print() {
-        let gameinfo = GameInfo::new(r#"{
+        let gameinfo = GameInfo::new(
+            r#"{
             "game": {
                 "id": "2c2d43ec-0fdb-4bf4-9a00-8f1d243238d4",
                 "ruleset": {
@@ -474,7 +483,8 @@ mod test {
                 "shout": "",
                 "squad": ""
             }
-        }"#);
+        }"#,
+        );
         let game = GameStateLog::from_api(&gameinfo);
         game.print();
     }

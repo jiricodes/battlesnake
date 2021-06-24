@@ -6,8 +6,11 @@ pub use game_logger::init_logger;
 pub use grid::{GameGrid, GridObject};
 pub use heuristic::Heuristic;
 pub use input::GameInfo;
+pub use path::Path;
 pub use point::Point;
-pub use snake::SnakeProps;
+pub use snake::{Snake, SnakeProps};
+pub use board::{Board, CauseOfDeath};
+pub use minimax::get_move;
 
 pub mod astar;
 pub mod board;

@@ -127,13 +127,17 @@ mod test {
         assert_eq!(snake.head(), Point { x: 9, y: 3 });
         snake.advance(&Direction::Down);
         assert_eq!(snake.size(), 6);
-        assert_eq!(snake.body.nodes, vec![
-            Point { x: 9, y: 2 },
-            Point { x: 9, y: 3 },
-            Point { x: 9, y: 4 },
-            Point { x: 9, y: 5 },
-            Point { x: 8, y: 5 },
-            Point { x: 7, y: 5 }]);
+        assert_eq!(
+            snake.body.nodes,
+            vec![
+                Point { x: 9, y: 2 },
+                Point { x: 9, y: 3 },
+                Point { x: 9, y: 4 },
+                Point { x: 9, y: 5 },
+                Point { x: 8, y: 5 },
+                Point { x: 7, y: 5 }
+            ]
+        );
         assert_eq!(snake.health, 49);
         assert_eq!(snake.has_health(), true);
         snake.reduce_health(9);
@@ -145,14 +149,18 @@ mod test {
         assert_eq!(snake.health, 100);
         assert_eq!(snake.has_health(), true);
         assert_eq!(snake.size(), 7);
-        assert_eq!(snake.body.nodes, vec![
-            Point { x: 9, y: 2 },
-            Point { x: 9, y: 3 },
-            Point { x: 9, y: 4 },
-            Point { x: 9, y: 5 },
-            Point { x: 8, y: 5 },
-            Point { x: 7, y: 5 },
-            Point { x: 7, y: 5 }]);
+        assert_eq!(
+            snake.body.nodes,
+            vec![
+                Point { x: 9, y: 2 },
+                Point { x: 9, y: 3 },
+                Point { x: 9, y: 4 },
+                Point { x: 9, y: 5 },
+                Point { x: 8, y: 5 },
+                Point { x: 7, y: 5 },
+                Point { x: 7, y: 5 }
+            ]
+        );
         assert_eq!(snake.is_collision(&Point { x: 9, y: 4 }), Some(2));
         assert_eq!(snake.is_collision(&Point { x: 7, y: 5 }), Some(5));
         assert_eq!(snake.is_collision(&Point { x: 7, y: 6 }), None);

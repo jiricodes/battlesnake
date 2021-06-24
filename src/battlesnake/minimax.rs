@@ -1,15 +1,16 @@
 use log::*;
-use std::cmp::{max, min, Eq, Ord, Ordering, PartialEq, PartialOrd};
+use std::cmp::{Eq, Ord, Ordering, PartialEq, PartialOrd};
 use std::collections::BinaryHeap;
 use std::sync::Mutex;
 use std::time::{Duration, SystemTime};
 
 use rayon::prelude::*;
 
-use super::board::{Board, CauseOfDeath};
-use super::domove::Move;
-use super::input::GameInfo;
+use super::{Board, CauseOfDeath};
+use super::Move;
+use super::GameInfo;
 use super::Direction;
+use super::Point;
 
 struct State {
     board: Board,
@@ -65,14 +66,41 @@ fn min_f32(a: f32, b: f32) -> f32 {
     }
 }
 
+#[inline]
+fn max_f32(a: f32, b: f32) -> f32 {
+    match a.partial_cmp(&b).unwrap() {
+        Ordering::Greater => a,
+        _ => b,
+    }
+}
 
-pub fn heuristic(board: &Board, snake_index: usize) -> f32 {
+pub fn heuristic(board: &Board, snake_index: usize, hazards: &Vec<Point>) -> f32 {
     // floodfill / area dominance
-    // A* 1.0 - distance
+    // A* 1.0 - (cost / hp)
     // aggression
 
+    
+    let mut aval: f32 = if board.food.is_empty() {1.0} else {0.1};
+    for food in board.food.iter() {
+        let res = board.astar(board.snakes[snake_index].head(), *food, hazards);
+        if res.is_some() {
+            let (g_score, _) = res.unwrap();
+            aval = max_f32(aval, 1.0 - (g_score as f32 / board.snakes[snake_index].health as f32));
+            }
+    }
+
+    let mut aggression: f32 = 0.0;
+    for snake in board.snakes.iter() {
+        if snake.size() < board.snakes[snake_index].size() {
+            if snake.head() == board.snakes[snake_index].head() {
+                aggression = 1.1;
+            } else {
+                aggression = 1.0 / snake.head().manhattan_distance(&board.snakes[snake_index].head()) as f32;
+            }
+        }
+    }
     //finally get the ratio. should implement here a weighted ratio
-    0.0
+    aval * aggression
 }
 
 pub fn get_move(gameinfo: &GameInfo, time_budget: Duration) -> Move {
@@ -95,8 +123,14 @@ pub fn get_move(gameinfo: &GameInfo, time_budget: Duration) -> Move {
         }
 
         if SystemTime::now().duration_since(time_start).unwrap() >= time_budget {
-            info!("Time Budget Ran Out. Explored {} Depth {}", cnt_explored, first.depth);
-            println!("Time Budget Ran Out. Explored {} Depth {}", cnt_explored, first.depth);
+            info!(
+                "Time Budget Ran Out. Explored {} Depth {}",
+                cnt_explored, first.depth
+            );
+            println!(
+                "Time Budget Ran Out. Explored {} Depth {}",
+                cnt_explored, first.depth
+            );
             break 'minimax;
         }
 
@@ -127,7 +161,7 @@ pub fn get_move(gameinfo: &GameInfo, time_budget: Duration) -> Move {
                     },
                 });
             } else {
-                let next_h_score = heuristic(&new_board, 0);
+                let next_h_score = heuristic(&new_board, 0, hazards);
                 let is_new_worst = worst_outcomes
                     .lock()
                     .unwrap()
@@ -168,11 +202,13 @@ pub fn get_move(gameinfo: &GameInfo, time_budget: Duration) -> Move {
 
 #[cfg(test)]
 mod test {
+    use super::super::game_logger::GameStateLog;
     use super::*;
 
     #[test]
     fn test_test() {
-        let data = GameInfo::new(r#"
+        let data = GameInfo::new(
+            r#"
         {
             "game": {
                 "id": "66a99167-b263-4c9f-988e-087f5df286be",
@@ -582,9 +618,11 @@ mod test {
                 "squad": ""
             }
         }
-        "#);
+        "#,
+        );
         // https://play.battlesnake.com/g/66a99167-b263-4c9f-988e-087f5df286be/?turn=0
         let res = get_move(&data, Duration::from_millis(280));
+        GameStateLog::from_api(&data).print();
         dbg!(res);
     }
 }

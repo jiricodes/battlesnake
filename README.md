@@ -58,8 +58,9 @@ curl https://sh.rustup.rs -sSf | sh -s -- -y
 
 ## TO-DO
 ### Minimax Rework
+- [ ] add launch options for port and time budget at least
 - [x] all eligible moves of all snakes at current board
-- [ ] move A* to board
+- [x] move A* to board
 - heuristics
     - [ ] floodfill
     - [ ] A*

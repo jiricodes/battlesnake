@@ -11,8 +11,9 @@ use log::*;
 
 mod battlesnake;
 use battlesnake::init_logger;
-use battlesnake::Move;
 use battlesnake::SnakeProps;
+use battlesnake::get_move;
+use battlesnake::GameInfo;
 
 // use std::time::Instant;
 
@@ -28,7 +29,7 @@ async fn index() -> impl Responder {
 async fn domove(data: String) -> impl Responder {
     // debug!("Received Move");
     let start_time = SystemTime::now();
-    let movement = Move::new(&data);
+    let movement = get_move(&GameInfo::new(&data), Duration::from_millis(280));
     let duration = SystemTime::now()
         .duration_since(start_time)
         .unwrap()

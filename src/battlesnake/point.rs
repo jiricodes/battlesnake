@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use std::cmp::PartialEq;
 use std::convert::From;
 use std::fmt;
 use std::ops::{Add, Sub};
@@ -72,9 +73,9 @@ impl Point {
         self.distance_squared(other).sqrt()
     }
 
-    pub fn manhattan_distance(&self, other: &Self) -> i32 {
+    pub fn manhattan_distance(&self, other: &Self) -> usize {
         let point = *other - *self;
-        point.x.abs() + point.y.abs()
+        (point.x.abs() + point.y.abs()) as usize
     }
 
     pub fn find_closest(&self, others: Vec<Self>) -> Self {
@@ -217,7 +218,7 @@ mod test {
             Point::new(-10, -10),
             Point::new(-1, -1),
         ];
-        assert!(Point::new(-1, -1) == point.find_closest(other_points));
+        assert_eq!(Point::new(-1, -1), point.find_closest(other_points));
     }
 
     #[test]
