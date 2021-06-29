@@ -5,37 +5,17 @@ use super::heuristic::{HeurMethod, Heuristic};
 use super::input::GameInfo;
 use super::point::Point;
 use super::Dfs;
+use super::Direction;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
-#[serde(rename_all(serialize = "lowercase", deserialize = "lowercase"))]
-pub enum Movement {
-    Right,
-    Left,
-    Up,
-    Down,
-}
-
-impl fmt::Display for Movement {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let move_text = match self {
-            Movement::Right => "right",
-            Movement::Left => "left",
-            Movement::Up => "up",
-            Movement::Down => "down",
-        };
-        write!(f, "{}", move_text)
-    }
-}
-
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Move {
     #[serde(rename = "move")]
-    movement: Movement,
+    pub movement: Direction,
     #[serde(skip_serializing_if = "Option::is_none")]
-    shout: Option<String>,
+    pub shout: Option<String>,
 }
 
 impl Move {
@@ -56,13 +36,13 @@ impl Move {
 
         // Log my snakes id
         let sym = GridObject::Snake(gameinfo.get_my_index());
-        println!("Turn: {}", gameinfo.get_turn());
-        println!("[{}] HP : {}", sym, hp);
+        // println!("Turn: {}", gameinfo.get_turn());
+        // println!("[{}] HP : {}", sym, hp);
         // Get my snake's head and length
         let head = gameinfo.get_my_head();
-        println!("[{}] Head at: {}", sym, head);
+        // println!("[{}] Head at: {}", sym, head);
         let my_len = gameinfo.get_my_length();
-        println!("[{}] Length: {}", sym, my_len);
+        // println!("[{}] Length: {}", sym, my_len);
 
         // If length is under 8 the snake cannot trap itself
         // so lets just head towards closest food
@@ -84,7 +64,7 @@ impl Move {
                 let c = astar.get_cost();
                 let mut dfs = Dfs::new();
                 let ret = dfs.get_atleast_len(apple, &grid, my_len);
-                println!("[{}]  Return for Apple {}: {}", sym, apple, ret);
+                // println!("[{}]  Return for Apple {}: {}", sym, apple, ret);
                 // need to involve checking, wheather I survive the way back
                 if (c <= hp as f32 || head.is_neighbour(*apple)) && c < best && ret {
                     path = Some(astar.get_path());
@@ -104,10 +84,10 @@ impl Move {
         // }
 
         if path.is_some() {
-            println!("[{}] Found path with cost {}", sym, best);
+            // println!("[{}] Found path with cost {}", sym, best);
             move_point = path.unwrap()[0];
         } else {
-            println!("[{}] A* found no path, moving first free space", sym);
+            // println!("[{}] A* found no path, moving first free space", sym);
             // Otherwise
             // if solo game -> we do hamilton
             // else -> super trooper algo?
@@ -120,7 +100,7 @@ impl Move {
                 if val.is_considerable() {
                     let mut dfs = Dfs::new();
                     let ret = dfs.get_atleast_len(point, &grid, my_len);
-                    println!("[{}] Return for Consider Point {}: {}", sym, point, ret);
+                    // println!("[{}] Return for Consider Point {}: {}", sym, point, ret);
                     if ret {
                         move_point = *point;
                         break;
@@ -128,14 +108,14 @@ impl Move {
                 } else if val.is_accessible() {
                     let mut dfs = Dfs::new();
                     let ret = dfs.get_atleast_len(point, &grid, my_len);
-                    println!("[{}] Return for Access Point {}: {}", sym, point, ret);
+                    // println!("[{}] Return for Access Point {}: {}", sym, point, ret);
                     if ret {
                         move_point = *point;
                     }
                 }
             }
             if grid.get_value(&move_point) == GridObject::Outofbounds {
-                println!("[{}] Selected point ({}) is out of bounds, searching for inbound one. in [{}, {}, {}, {}]", sym, move_point, turns[0], turns[1], turns[2], turns[3]);
+                // println!("[{}] Selected point ({}) is out of bounds, searching for inbound one. in [{}, {}, {}, {}]", sym, move_point, turns[0], turns[1], turns[2], turns[3]);
                 for p in &turns {
                     let v = grid.get_value(p);
                     if v != GridObject::Outofbounds {
@@ -149,15 +129,22 @@ impl Move {
         }
 
         grid.set_food_for_print(&food);
-        println!("{}", grid);
+        // println!("{}", grid);
 
         // selects move that is either to empty or food cell
         let m = Self {
             movement: head.get_neighbour_direction(move_point).unwrap(),
             shout: None,
         };
-        println!("{}: {}", sym, m);
+        // println!("{}: {}", sym, m);
         m
+    }
+
+    pub fn default() -> Self {
+        Self {
+            movement: Direction::Right,
+            shout: None,
+        }
     }
 
     pub fn as_option_string(input: &str) -> Option<String> {

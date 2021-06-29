@@ -1,4 +1,6 @@
-use super::point::Point;
+use super::GameInfo;
+use super::Point;
+
 use std::fmt;
 
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -76,6 +78,15 @@ impl GameGrid {
             data: vec![GridObject::Empty; dimensions.0 * dimensions.1],
             ignore_hazard: false,
         }
+    }
+
+    pub fn from_api(gameinfo: &GameInfo) -> Self {
+        let dim = gameinfo.get_board_dimensions();
+        let mut grid = GameGrid::new(dim);
+        grid.set_snakes(gameinfo.get_snake_bodies());
+        grid.set_hazards(&gameinfo.get_hazards());
+        grid.set_food(&gameinfo.get_food());
+        grid
     }
 
     pub fn reset(&mut self) {

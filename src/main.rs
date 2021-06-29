@@ -1,19 +1,38 @@
 #[macro_use]
 extern crate actix_web;
+#[macro_use]
+extern crate clap;
+#[macro_use]
+extern crate lazy_static;
 
+// Depts
 use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
+use clap::{App as ClApp, Arg as ClArg};
+use log::*;
 
+// Std
 use std::io;
+use std::time::{Duration, SystemTime};
+use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::Mutex;
 
+// Battlesnake
 mod battlesnake;
-use battlesnake::Move;
+use battlesnake::init_logger;
+use battlesnake::SessionStats;
 use battlesnake::SnakeProps;
+use battlesnake::get_move;
+use battlesnake::GameInfo;
 
-// use std::time::Instant;
+// Vars
+static TIME_BUDGET: AtomicU64 = AtomicU64::new(280);
+lazy_static! {
+    static ref SESSION_STATS: Mutex<SessionStats> = Mutex::new(SessionStats::new(1200));
+}
 
 #[get("/")]
 async fn index() -> impl Responder {
-    println!("\nReceived Index");
+    debug!("Received Index");
     let snake = SnakeProps::new();
     // let datastr = snake.get_string();
     HttpResponse::Ok().body(snake.get_string())
@@ -21,29 +40,94 @@ async fn index() -> impl Responder {
 
 #[post("/move")]
 async fn domove(data: String) -> impl Responder {
-    // let start: Instant = Instant::now();
-    println!("\nReceived Move");
-    let movement = Move::new(&data);
-    // println!("Move: {}", &movement);
-    // println!("----\nAsnwered in {}\n---\n", start.elapsed().as_millis());
+    let start_time = SystemTime::now();
+    let game_data = GameInfo::new(&data);
+    let mut session_stats = SESSION_STATS.lock().unwrap();
+    session_stats.update_game(&game_data.get_game_id(), game_data.get_turn() as usize);
+    let movement = get_move(&game_data, Duration::from_millis(TIME_BUDGET.load(Ordering::SeqCst)));
+    let duration = SystemTime::now()
+        .duration_since(start_time)
+        .unwrap()
+        .as_millis();
+    info!("Handled /move [{}] in {}ms", movement.movement, duration);
     HttpResponse::Ok().body(movement.get_json_string())
 }
 
 #[post("/start")]
-async fn start() -> impl Responder {
-    println!("Received START");
+async fn start(data: String) -> impl Responder {
+    debug!("Received START");
+    let game_data = GameInfo::new(&data);
+    let mut session_stats = SESSION_STATS.lock().unwrap();
+    session_stats.garbage_collect();
+    session_stats.start_game(game_data.get_game_id());
+    debug!("{}", session_stats);
     HttpResponse::Ok()
 }
 
 #[post("/end")]
 async fn end(data: String) -> impl Responder {
-    println!("Received END");
-    dbg!(data);
+    debug!("Received END");
+    let game_data = GameInfo::new(&data);
+    let win = true; // Assuming for now that if received end, we won else fix needed in game_data.is_win();
+    let mut session_stats = SESSION_STATS.lock().unwrap();
+    session_stats.end_game(&game_data.get_game_id(), win);
+    session_stats.garbage_collect();
+    debug!("{}", session_stats);
     HttpResponse::Ok()
 }
 
 #[actix_web::main]
 async fn main() -> io::Result<()> {
+    // Initialize logger
+    init_logger();
+
+    // Process arguments
+    let arguments = ClApp::new("battlesnake")
+    .author("hello@jiricodes.com")
+    .version(crate_version!())
+    .arg(
+        ClArg::with_name("ip_address")
+        .short("i")
+                .long("ip-address")
+                .takes_value(true)
+                .help("Listen IP address"),
+    ).arg(
+            ClArg::with_name("port")
+                .short("p")
+                .long("port")
+                .takes_value(true)
+                .help("Listen port"),
+    ).arg(
+        ClArg::with_name("time_budget").short("t")
+        .long("time-budget")
+        .takes_value(true)
+        .help("Time Budget for the algorithm")
+    ).arg(
+        ClArg::with_name("stats_game_timeout")
+        .short("s")
+        .long("stats-game-timeout")
+        .takes_value(true)
+        .help("Sets timeout in seconds for session statistics' games. This is required due to battlesnake API invoking game end when not winning snake. Default 1200s (20 minutes)")
+    ).get_matches();
+
+    // Set Time Budget if argument passed
+    if let Ok(time_budget) = value_t!(arguments, "time_budget", u64) {
+        TIME_BUDGET.store(time_budget as u64, Ordering::SeqCst);
+        info!("Time budget set to {} ms.", TIME_BUDGET.load(Ordering::SeqCst));
+    }
+    // Set Stats timeout
+    if let Ok(stats_timeout) = value_t!(arguments, "stats_game_timeout", u64) {
+        let mut session_stats = SESSION_STATS.lock().unwrap();
+        session_stats.set_timeout(Duration::from_secs(stats_timeout));
+        info!("Stats Timeout set to {} seconds", session_stats.get_timeout());
+        std::mem::drop(session_stats);
+    }
+
+    // Prep IP and Port
+    let ip_address = arguments.value_of("ip_address").unwrap_or("0.0.0.0");
+    let port = arguments.value_of("port").unwrap_or("6969");
+    let address = format!("{}:{}", ip_address, port);
+    // Start the HTTP server
     HttpServer::new(|| {
         App::new()
             .service(index)
@@ -51,7 +135,7 @@ async fn main() -> io::Result<()> {
             .service(start)
             .service(end)
     })
-    .bind("0.0.0.0:6969")?
+    .bind(&address)?
     .run()
     .await
 }

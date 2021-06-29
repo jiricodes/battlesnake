@@ -58,3 +58,7 @@ Blog series about implementation of heuristic algorithm, Deep Q-Learning, geneti
 [slitherin snake](https://github.com/gsurma/slitherin)
 
 [Today to show you Hamilton ring automatic play Snake game ah](https://www.fatalerrors.org/a/today-to-show-you-hamilton-ring-automatic-play-snake-game-ah.html)
+
+[A* best practices](https://github.com/riscy/a_star_on_grids#avoid-recomputing-heuristics)
+
+[Jump Point Search](https://zerowidth.com/2013/a-visual-explanation-of-jump-point-search.html)

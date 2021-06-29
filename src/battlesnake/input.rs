@@ -2,39 +2,39 @@ use super::point::Point;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
-struct GameData {
-    id: String,
-    timeout: i32,
+pub struct GameData {
+    pub id: String,
+    pub timeout: i32,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-struct Board {
-    height: i32,
-    width: i32,
-    food: Vec<Point>,
-    hazards: Vec<Point>,
-    snakes: Vec<Snake>,
+pub struct Board {
+    pub height: i32,
+    pub width: i32,
+    pub food: Vec<Point>,
+    pub hazards: Vec<Point>,
+    pub snakes: Vec<ApiSnake>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-struct Snake {
-    id: String,
-    name: String,
-    health: i32,
-    body: Vec<Point>,
+pub struct ApiSnake {
+    pub id: String,
+    pub name: String,
+    pub health: i32,
+    pub body: Vec<Point>,
     // latency: String,
-    head: Point,
-    length: i32,
-    shout: String,
+    pub head: Point,
+    pub length: i32,
+    pub shout: String,
     // squad: String
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct GameInfo {
-    game: GameData,
-    turn: i32,
-    board: Board,
-    you: Snake,
+    pub game: GameData,
+    pub turn: i32,
+    pub board: Board,
+    pub you: ApiSnake,
 }
 
 impl GameInfo {
@@ -107,8 +107,29 @@ impl GameInfo {
         self.turn
     }
 
+    pub fn get_game_id(&self) -> String {
+        self.game.id.clone()
+    }
+
     pub fn get_my_length(&self) -> i32 {
         self.you.length
+    }
+
+    pub fn get_heads(&self) -> Vec<Point> {
+        let mut heads: Vec<Point> = Vec::new();
+        for snake in self.board.snakes.iter() {
+            heads.push(snake.head);
+        }
+        heads
+    }
+
+    pub fn is_win(&self) -> bool {
+        for snake in self.board.snakes.iter() {
+            if snake.id != self.you.id && snake.health != 0 {
+                return false;
+            }
+        }
+        self.you.health != 0
     }
 }
 

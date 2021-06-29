@@ -1,18 +1,24 @@
 use serde::{Deserialize, Serialize};
+use std::cmp::PartialEq;
+use std::convert::From;
 use std::fmt;
 use std::ops::{Add, Sub};
 
-use super::domove::Movement;
+use super::Direction;
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, PartialEq, Hash, Eq)]
 pub struct Point {
-    x: i32,
-    y: i32,
+    pub x: i32,
+    pub y: i32,
 }
 
 impl Point {
     pub fn new(x: i32, y: i32) -> Self {
         Self { x, y }
+    }
+
+    pub fn zero() -> Self {
+        Self { x: 0, y: 0 }
     }
 
     pub fn get_x(&self) -> i32 {
@@ -67,9 +73,9 @@ impl Point {
         self.distance_squared(other).sqrt()
     }
 
-    pub fn manhattan_distance(&self, other: &Self) -> i32 {
+    pub fn manhattan_distance(&self, other: &Self) -> usize {
         let point = *other - *self;
-        point.x.abs() + point.y.abs()
+        (point.x.abs() + point.y.abs()) as usize
     }
 
     pub fn find_closest(&self, others: Vec<Self>) -> Self {
@@ -85,19 +91,24 @@ impl Point {
         best.clone()
     }
 
-    pub fn get_neighbour_direction(self, neighbour: Self) -> Option<Movement> {
+    // needs rework to use try_from for direction
+    pub fn get_neighbour_direction(self, neighbour: Self) -> Option<Direction> {
         let p = neighbour - self;
         match p {
-            Point { x: 1, y: 0 } => Some(Movement::Right),
-            Point { x: -1, y: 0 } => Some(Movement::Left),
-            Point { x: 0, y: 1 } => Some(Movement::Up),
-            Point { x: 0, y: -1 } => Some(Movement::Down),
+            Point { x: 1, y: 0 } => Some(Direction::Right),
+            Point { x: -1, y: 0 } => Some(Direction::Left),
+            Point { x: 0, y: 1 } => Some(Direction::Up),
+            Point { x: 0, y: -1 } => Some(Direction::Down),
             _ => None,
         }
     }
 
     pub fn is_neighbour(self, other: Point) -> bool {
         self.manhattan_distance(&other) == 1
+    }
+
+    pub fn is_not_negative(&self) -> bool {
+        self.x >= 0 && self.y >= 0
     }
 }
 
@@ -118,6 +129,17 @@ impl Sub for Point {
     }
 }
 
+impl Sub<&Point> for Point {
+    type Output = Self;
+
+    fn sub(self, other: &Self) -> Self::Output {
+        Self {
+            x: self.x - other.x,
+            y: self.y - other.y,
+        }
+    }
+}
+
 impl Add for Point {
     type Output = Self;
 
@@ -125,6 +147,60 @@ impl Add for Point {
         Self {
             x: self.x + other.x,
             y: self.y + other.y,
+        }
+    }
+}
+
+impl Add<Direction> for Point {
+    type Output = Self;
+
+    fn add(self, dir: Direction) -> Self {
+        self + Point::from(dir)
+    }
+}
+
+impl Add<&Direction> for Point {
+    type Output = Self;
+
+    fn add(self, dir: &Direction) -> Self {
+        self + Point::from(dir)
+    }
+}
+
+impl Sub<Direction> for Point {
+    type Output = Self;
+
+    fn sub(self, dir: Direction) -> Self {
+        self - Point::from(dir)
+    }
+}
+
+impl Sub<&Direction> for Point {
+    type Output = Self;
+
+    fn sub(self, dir: &Direction) -> Self {
+        self - Point::from(dir)
+    }
+}
+
+impl From<Direction> for Point {
+    fn from(dir: Direction) -> Self {
+        match dir {
+            Direction::Right => Point { x: 1, y: 0 },
+            Direction::Left => Point { x: -1, y: 0 },
+            Direction::Up => Point { x: 0, y: 1 },
+            Direction::Down => Point { x: 0, y: -1 },
+        }
+    }
+}
+
+impl From<&Direction> for Point {
+    fn from(dir: &Direction) -> Self {
+        match *dir {
+            Direction::Right => Point { x: 1, y: 0 },
+            Direction::Left => Point { x: -1, y: 0 },
+            Direction::Up => Point { x: 0, y: 1 },
+            Direction::Down => Point { x: 0, y: -1 },
         }
     }
 }
@@ -142,7 +218,7 @@ mod test {
             Point::new(-10, -10),
             Point::new(-1, -1),
         ];
-        assert!(Point::new(-1, -1) == point.find_closest(other_points));
+        assert_eq!(Point::new(-1, -1), point.find_closest(other_points));
     }
 
     #[test]
@@ -153,10 +229,18 @@ mod test {
         let up = Point { x: 10, y: 11 };
         let down = Point { x: 10, y: 9 };
         let bad = Point { x: 15, y: 15 };
-        assert!(point.get_neighbour_direction(right).unwrap() == Movement::Right);
-        assert!(point.get_neighbour_direction(left).unwrap() == Movement::Left);
-        assert!(point.get_neighbour_direction(up).unwrap() == Movement::Up);
-        assert!(point.get_neighbour_direction(down).unwrap() == Movement::Down);
+        assert!(point.get_neighbour_direction(right).unwrap() == Direction::Right);
+        assert!(point.get_neighbour_direction(left).unwrap() == Direction::Left);
+        assert!(point.get_neighbour_direction(up).unwrap() == Direction::Up);
+        assert!(point.get_neighbour_direction(down).unwrap() == Direction::Down);
         assert!(point.get_neighbour_direction(bad) == None);
+        assert_eq!(point + Direction::Right, right);
+        assert_eq!(point + Direction::Left, left);
+        assert_eq!(point + Direction::Up, up);
+        assert_eq!(point + Direction::Down, down);
+        assert_eq!(point + &Direction::Right, right);
+        assert_eq!(point + &Direction::Left, left);
+        assert_eq!(point + &Direction::Up, up);
+        assert_eq!(point + &Direction::Down, down);
     }
 }
