@@ -107,6 +107,10 @@ impl GameInfo {
         self.turn
     }
 
+    pub fn get_game_id(&self) -> String {
+        self.game.id.clone()
+    }
+
     pub fn get_my_length(&self) -> i32 {
         self.you.length
     }
@@ -117,6 +121,15 @@ impl GameInfo {
             heads.push(snake.head);
         }
         heads
+    }
+
+    pub fn is_win(&self) -> bool {
+        for snake in self.board.snakes.iter() {
+            if snake.id != self.you.id && snake.health != 0 {
+                return false;
+            }
+        }
+        self.you.health != 0
     }
 }
 

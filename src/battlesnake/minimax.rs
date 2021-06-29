@@ -81,19 +81,21 @@ pub fn heuristic(board: &Board, snake_index: usize, hazards: &Vec<Point>) -> f32
 
     let snake_len = board.snakes[snake_index].size();
 
-    let mut ttl = 0;
-    for snake in board.snakes.iter() {
-        ttl += snake.size();
-    }
-    let avg_len = ttl as f32 / board.snakes.len() as f32;
-    let len_rat = if snake_len >= avg_len { 1.0snake_len as f32 / avg_len;
+    // let mut ttl = 0;
+    // for snake in board.snakes.iter() {
+    //     ttl += snake.size();
+    // }
+    // let avg_len = ttl as f32 / board.snakes.len() as f32;
+    // let len_rat = if snake_len >= avg_len { 1.0snake_len as f32 / avg_len;
     let mut aval: f32 = if board.food.is_empty() {1.0} else {0.1};
     for food in board.food.iter() {
         let res = board.astar(board.snakes[snake_index].head(), *food, hazards);
         if res.is_some() {
             let (g_score, _) = res.unwrap();
-            println!("{} {} -> rat {} -> {}")
-            aval = max_f32(aval, 1.0 - (g_score as f32 / board.snakes[snake_index].health as f32));
+            // println!("{} {} -> rat {} -> {}")
+            if g_score < board.snakes[snake_index].health as usize {
+                aval = max_f32(aval, 1.0 - ((board.snakes[snake_index].health as usize - g_score) as f32 / board.snakes[snake_index].health as f32));
+            }
             }
     }
 

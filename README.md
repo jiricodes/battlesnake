@@ -8,19 +8,35 @@ Currently working on implementation solely for Royale mode due to ongoing [Summe
 ### Aggregate
 On aggregate all version have achieved following results during battlesnake's Summer League Event 2021:
 ```
-Jun 18
+Jun 24
 
-Games: 865
-Wins: 199
-Losses: 666
-Win Rate: 23.01%
+Games: 1,632
+Wins: 447
+Losses: 1,185
+Win Rate: 27.39%
 ```
 
-### v0.1.0 WIP
-Despite there are a lot of possible improvements for v0.0.2 algo, I believe that minmax based snake has better chances on success.
-So I'll attempt to create one and test it 1v1 with it's predecessors. Let see.
+### v0.1.0
+```
+Jun 29
+
+Games: 540
+Wins: 189
+Losses: 351
+Win Rate: 35.00%
+```
+Minimal minimax with astar as eval function only deployed on Jun 24 on Linode for better latency. WIP on heuristics.
 
 ### v0.0.2 (~27% win ratio)
+Stats at the end of life:
+```
+Jun 24
+
+Games: 1,632
+Wins: 447
+Losses: 1,185
+Win Rate: 27.39%
+```
 Additional DFS checking implemented to check whether a path has an escape path. This feature could use some refactoring in order to be more inpactful
 
 Local tests of Self vs. Self royale games averaged on 77 turns in 10k games. The results reflect average survival rate of this version as it doesn't involve any _aggresive_ moves yet.
@@ -31,13 +47,6 @@ New heuristic _Battlesnake_ that considers move cost to be 1 + [15 if hazard] + 
 ### v0.0.0 (~20% win ratio)
 Simple manhattan A* forcing out of hazards paths with fallback on ignoring hazard. 
 Marking surrounding cells of bigger snakes' heads as _hazard_.
-
-## Used farmworks
-```
-Rust
- - actix
- - serde
-```
 
 ## AWS EC deployment
 ### Deployment custom script
@@ -54,11 +63,12 @@ wget https://aws-codedeploy-us-east-1.s3.amazonaws.com/latest/install
 sudo chmod +x ./install
 sudo ./install auto
 curl https://sh.rustup.rs -sSf | sh -s -- -y
+source $HOME/.cargo/env
 ```
 
 ## TO-DO
 ### Minimax Rework
-- [ ] add launch options for port and time budget at least
+- [x] add launch options for port and time budget at least
 - [x] all eligible moves of all snakes at current board
 - [x] move A* to board
 - heuristics

@@ -1,6 +1,6 @@
 #! /bin/bash
 
-num_games=250
+num_games=10
 
 #args
 if [ "$1" == "-q" ]
@@ -12,7 +12,8 @@ fi
 
 # Adversary number 1
 s1_name="V0.1.0"
-s1_bin=./minimax-v0.1.0
+s1_proc="minimax-v0.1.0"
+s1_bin=./{s1_proc}
 s1_add="http://127.0.0.1:6970"
 s1_log="logs-${s1_name}"
 
@@ -34,25 +35,36 @@ b_wins=0
 draws=0
 errors=0
 
-#exec
+#Stop running instances
 pkill battlesnake
+pkill ${s1_proc}
+
+# Created logging directory if not existent
 mkdir -p ${my_dir}/logs
+
+# Save start time
 N=$(date +"%Y%m%dT%H%M")
+
+# Start adversaries
 if [ "${quiet}" != "y" ]
 then
     echo "Launching Adversaries"
 fi
 
+# Create adversary 1 logging function
 mkdir -p ${s1_log}
+# Start adversary 1
 ${s1_bin} > ${s1_log}/$N.out.log 2> ${s1_log}/$N.err.log </dev/null &
 sleep 1
 
+# Start current work
 if [ "${quiet}" != "y" ]
 then
     echo "Launching Current BattleSnake API"
 fi
+
 (cd ${my_dir}; cargo build --release);
-sleep 5
+sleep 1
 cargo run --release --manifest-path ${my_bin} > ${my_dir}/logs/$N.out.log 2> ${my_dir}/logs/$N.err.log </dev/null &
 sleep 1
 ## run games
@@ -123,4 +135,5 @@ fi
 
 # stop battlesnake api
 pkill battlesnake
+pkill minimax-v0.1.0
 rm -f ${tmplog} ${testsum}

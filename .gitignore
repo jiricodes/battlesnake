@@ -3,3 +3,4 @@ logs/*.log
 Cargo.lock
 tests/logs*/
 tests/battlesnake-v0.0.2
+tests/minimax-v0.1.0
