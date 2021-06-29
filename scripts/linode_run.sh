@@ -16,7 +16,7 @@ then
     snakes=$(ps -a | grep -i battlesnake | awk '{ print $1 }')
     for snake in ${snakes}
     do
-        address=$(sudo netstat -tulpn | grep ${snake} | awk '{ print $4 }')
+        address=$(netstat -tulpn | grep ${snake} | awk '{ print $4 }')
         echo "Battlesnake [${snake}] running at ${address}"
     done
 else
