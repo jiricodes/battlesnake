@@ -78,28 +78,32 @@ pub fn heuristic(board: &Board, snake_index: usize, hazards: &Vec<Point>) -> f32
     // floodfill / area dominance
     // A* 1.0 - (cost / hp)
     // aggression
+    if snake_index == 0 && board.snakes.len() == 1 {
+        return 2.0;
+    }
 
     let snake_len = board.snakes[snake_index].size();
+    let mut tot_lens = 0;
+    for s in board.snakes.iter() {
+        tot_lens += s.size();
+    }
+    let len_score = snake_len as f32 / tot_lens as f32;
 
-    // let mut ttl = 0;
-    // for snake in board.snakes.iter() {
-    //     ttl += snake.size();
-    // }
-    // let avg_len = ttl as f32 / board.snakes.len() as f32;
-    // let len_rat = if snake_len >= avg_len { 1.0snake_len as f32 / avg_len;
-    let mut aval: f32 = if board.food.is_empty() {1.0} else {0.1};
+    let mut aval: f32 = if board.food.is_empty() {1.0} else {0.0};
     for food in board.food.iter() {
         let res = board.astar(board.snakes[snake_index].head(), *food, hazards);
         if res.is_some() {
             let (g_score, _) = res.unwrap();
             // println!("{} {} -> rat {} -> {}")
-            if g_score < board.snakes[snake_index].health as usize {
-                aval = max_f32(aval, 1.0 - ((board.snakes[snake_index].health as usize - g_score) as f32 / board.snakes[snake_index].health as f32));
+            let hp = board.snakes[snake_index].health as usize;
+            if g_score <= hp {
+                let new_val = (hp - g_score) as f32 / hp as f32;
+                aval = max_f32(aval, new_val);
             }
             }
     }
 
-    let mut aggression: f32 = 0.0;
+    let mut aggression: f32 = 0.1;
     for snake in board.snakes.iter() {
         if snake.size() < snake_len {
             if snake.head() == board.snakes[snake_index].head() {
@@ -110,7 +114,7 @@ pub fn heuristic(board: &Board, snake_index: usize, hazards: &Vec<Point>) -> f32
         }
     }
     //finally get the ratio. should implement here a weighted ratio
-    aval * aggression
+    aval * aggression * len_score
 }
 
 pub fn get_move(gameinfo: &GameInfo, time_budget: Duration) -> Move {
@@ -194,9 +198,9 @@ pub fn get_move(gameinfo: &GameInfo, time_budget: Duration) -> Move {
 
         for worst_outcome in worst_outcomes.lock().unwrap().iter_mut() {
             if let Some(state) = worst_outcome.take() {
-                // if state.depth == 2 {
-                //     println!("Depth 1 option: dir={:?} score={}", state.root, state.h);
-                // }
+                if state.depth < 3 {
+                    println!("Depth 1 option: dir={:?} score={}", state.root, state.h);
+                }
                 if state.h >= 0.0 {
                     queue.push(state);
                 }
