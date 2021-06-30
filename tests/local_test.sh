@@ -11,9 +11,9 @@ else
 fi
 
 # Adversary number 1
-s1_name="V0.1.0"
-s1_proc="minimax-v0.1.0"
-s1_bin=./{s1_proc}
+s1_name="V0.1.1"
+s1_proc="minimax-v0.1.1"
+s1_bin="./${s1_proc} -t 400 -p 6970"
 s1_add="http://127.0.0.1:6970"
 s1_log="logs-${s1_name}"
 
@@ -22,9 +22,10 @@ my_name="CurrentWork"
 my_add="http://127.0.0.1:6969"
 my_dir=/home/jiricodes/Documents/battlesnake/
 my_bin=${my_dir}Cargo.toml
+my_args="-p 6969 -t 400"
 
 
-rules_dir=/home/jiricodes/Documents/rules_battlesnake
+rules_dir=/home/jiricodes/Documents/rules_battlesnake_myfork
 rules_cmd="battlesnake play -W 11 -H 11 --name ${s1_name} --url ${s1_add} --name ${my_name} --url ${my_add} -g royale -v"
 
 #utils
@@ -65,7 +66,7 @@ fi
 
 (cd ${my_dir}; cargo build --release);
 sleep 1
-cargo run --release --manifest-path ${my_bin} > ${my_dir}/logs/$N.out.log 2> ${my_dir}/logs/$N.err.log </dev/null &
+cargo run --release --manifest-path ${my_bin} -- ${my_args} > ${my_dir}/logs/$N.out.log 2> ${my_dir}/logs/$N.err.log </dev/null &
 sleep 1
 ## run games
 glog=${my_dir}/logs/$N.games.log
@@ -80,6 +81,7 @@ for ((i=1; i<=$num_games; i++))
 do
     echo -ne "\n ----------------- Game $i --------------" >> ${my_dir}/logs/$N.out.log
     echo -ne "\nGame $i " >> $testsum
+    echo -ne "Game $i "
     (cd ${rules_dir}; ./${rules_cmd} 2>$tmplog)
     t=$(cat $tmplog | grep DONE | awk '{ print $7 }')
     w=$(cat $tmplog | grep DONE | awk '{ print $9 }')
@@ -110,9 +112,11 @@ do
         fi
     fi
     echo "[ $t ]" >> $testsum
+    echo -n "[ $t ]"
     printf -v ti '%d\n' $t 2>/dev/null
     ttl=$(( ${ttl} + ${ti} ))
     echo -e "${reason}" >> $testsum
+    echo -e "${reason}"
     echo "" >> $glog
 done
 
@@ -135,5 +139,5 @@ fi
 
 # stop battlesnake api
 pkill battlesnake
-pkill minimax-v0.1.0
+pkill ${s1_proc}
 rm -f ${tmplog} ${testsum}
