@@ -68,6 +68,7 @@ async fn start(data: String) -> impl Responder {
 async fn end(data: String) -> impl Responder {
     debug!("Received END");
     let game_data = GameInfo::new(&data);
+    debug!("Data:\n {:?}", game_data);
     let win = true; // Assuming for now that if received end, we won else fix needed in game_data.is_win();
     let mut session_stats = SESSION_STATS.lock().unwrap();
     session_stats.end_game(&game_data.get_game_id(), win);
