@@ -112,7 +112,7 @@ do
         fi
     fi
     echo "[ $t ]" >> $testsum
-    echo -n "[ $t ]"
+    echo -n "[ $t ] Death: "
     printf -v ti '%d\n' $t 2>/dev/null
     ttl=$(( ${ttl} + ${ti} ))
     echo -e "${reason}" >> $testsum
