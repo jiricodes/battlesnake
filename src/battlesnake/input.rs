@@ -122,15 +122,6 @@ impl GameInfo {
         }
         heads
     }
-
-    pub fn is_win(&self) -> bool {
-        for snake in self.board.snakes.iter() {
-            if snake.id != self.you.id && snake.health != 0 {
-                return false;
-            }
-        }
-        self.you.health != 0
-    }
 }
 
 #[cfg(test)]

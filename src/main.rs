@@ -23,6 +23,7 @@ use battlesnake::SessionStats;
 use battlesnake::SnakeProps;
 use battlesnake::get_move;
 use battlesnake::GameInfo;
+use battlesnake::Board;
 
 // Vars
 static TIME_BUDGET: AtomicU64 = AtomicU64::new(280);
@@ -68,8 +69,14 @@ async fn start(data: String) -> impl Responder {
 async fn end(data: String) -> impl Responder {
     debug!("Received END");
     let game_data = GameInfo::new(&data);
-    debug!("Data:\n {:?}", game_data);
-    let win = true; // Assuming for now that if received end, we won else fix needed in game_data.is_win();
+    let result = Board::from_api(&game_data).get_my_death();
+    let mut win = false;
+    if result.is_some() {
+        info!("Death by {:?}", result.unwrap());
+    } else {
+        info!("Victory!");
+        win = true;
+    }
     let mut session_stats = SESSION_STATS.lock().unwrap();
     session_stats.end_game(&game_data.get_game_id(), win);
     session_stats.garbage_collect();

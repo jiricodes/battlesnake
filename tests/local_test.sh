@@ -80,61 +80,61 @@ fi
 for ((i=1; i<=$num_games; i++))
 do
     echo -ne "\n ----------------- Game $i --------------" >> ${my_dir}/logs/$N.out.log
-    echo -ne "\nGame $i " >> $testsum
+    echo -ne "\nGame $i " >> ${testsum}
     echo -ne "Game $i "
-    (cd ${rules_dir}; ./${rules_cmd} 2>$tmplog)
-    t=$(cat $tmplog | grep DONE | awk '{ print $7 }')
-    w=$(cat $tmplog | grep DONE | awk '{ print $9 }')
+    (cd ${rules_dir}; ./${rules_cmd} 2>${tmplog})
+    t=$(cat ${tmplog} | grep DONE | awk '{ print $7 }')
+    w=$(cat ${tmplog} | grep DONE | awk '{ print $9 }')
     reason=""
     
     if [ "$w" == "$s1_name" ]
     then
         a_wins=$(( ${a_wins} + 1 ))
-        cat $tmplog | tail -n 17 >> $glog
-        reason="${my_name}: "$(cat $tmplog | tail -n 17 | head -n 6 | grep ${my_name} | awk '{ print $(NF-1) }')
+        cat ${tmplog} | tail -n 17 >> ${glog}
+        reason="${my_name}: "$(cat ${tmplog} | tail -n 17 | head -n 6 | grep ${my_name} | awk '{ print $(NF-1) }')
     elif [ "$w" == "$my_name" ]
     then
         b_wins=$(( ${b_wins} + 1 ))
-        cat $tmplog | tail -n 17 >> $glog
-        reason="${s1_name}: "$(cat $tmplog | tail -n 17 | head -n 6 | grep ${s1_name} | awk '{ print $(NF-1) }')
+        cat ${tmplog} | tail -n 17 >> ${glog}
+        reason="${s1_name}: "$(cat ${tmplog} | tail -n 17 | head -n 6 | grep ${s1_name} | awk '{ print $(NF-1) }')
     else
-        d=$(cat $tmplog | grep DONE | grep draw)
+        d=$(cat ${tmplog} | grep DONE | grep draw)
         if [ "$d" != "" ]
         then
             draws=$(( ${draws} + 1 ))
-            cat $tmplog | tail -n 17 >> $glog
-            reason="${s1_name}: "$(cat $tmplog | tail -n 17 | head -n 6 | grep ${s1_name} | awk '{ print $(NF-1) }')"\n""${my_name}: "$(cat $tmplog | tail -n 17 | head -n 6 | grep ${my_name} | awk '{ print $(NF-1) }') 
+            cat ${tmplog} | tail -n 17 >> ${glog}
+            reason="${s1_name}: "$(cat ${tmplog} | tail -n 17 | head -n 6 | grep ${s1_name} | awk '{ print $(NF-1) }')"\n""${my_name}: "$(cat ${tmplog} | tail -n 17 | head -n 6 | grep ${my_name} | awk '{ print $(NF-1) }') 
         else
             errors=$(( ${errors} + 1 ))
-            cat $tmplog | tail -n 33 >> $glog
-            reason=$(cat $tmplog | grep panic)
-            t=$(cat $tmplog | tail -n 33 | head -n 1 | awk '{ print $(NF) }')
+            cat ${tmplog} | tail -n 33 >> ${glog}
+            reason=$(cat ${tmplog} | grep panic)
+            t=$(cat ${tmplog} | tail -n 33 | head -n 1 | awk '{ print $(NF) }')
         fi
     fi
-    echo "[ $t ]" >> $testsum
+    echo "[ $t ]" >> ${testsum}
     echo -n "[ $t ] Death: "
     printf -v ti '%d\n' $t 2>/dev/null
     ttl=$(( ${ttl} + ${ti} ))
-    echo -e "${reason}" >> $testsum
+    echo -e "${reason}" >> ${testsum}
     echo -e "${reason}"
-    echo "" >> $glog
+    echo "" >> ${glog}
 done
 
 avg_turns=$(( ${ttl} / ${num_games} ))
 
 # Final Log
-echo "" >> $testsum
-echo "Average Turns: ${avg_turns}" >> $testsum
-echo "${s1_name}: ${a_wins}" >> $testsum
-echo "${my_name}: ${b_wins}" >> $testsum
-echo "Draws: ${draws}" >> $testsum
-echo "Errors: ${errors}" >> $testsum
+echo "" >> ${testsum}
+echo "Average Turns: ${avg_turns}" >> ${testsum}
+echo "${s1_name}: ${a_wins}" >> ${testsum}
+echo "${my_name}: ${b_wins}" >> ${testsum}
+echo "Draws: ${draws}" >> ${testsum}
+echo "Errors: ${errors}" >> ${testsum}
 
-cat $testsum >> $glog
+cat ${testsum} >> ${glog}
 
 if [ "${quiet}" != "y" ]
 then
-    cat $testsum
+    cat ${testsum}
 fi
 
 # stop battlesnake api

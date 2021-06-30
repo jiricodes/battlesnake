@@ -188,6 +188,35 @@ impl Board {
         dead_snakes
     }
 
+    pub fn get_my_death (
+        &mut self,
+    ) -> Option <CauseOfDeath> {
+        let snake = self.snakes[0].clone();
+        let snake_head = snake.head();
+        if !snake.has_health() {
+            return Some(CauseOfDeath::OutOfHealth);
+        }
+        if !self.is_inbounds(&snake_head) {
+            return Some(CauseOfDeath::OutOfBounds);
+        }
+        for (other_i, other_snake) in self.snakes.iter().enumerate() {
+            if other_i != 0 {
+                if let Some(col) = other_snake.is_collision(&snake_head) {
+                    if col > 0 {
+                        return Some(CauseOfDeath::OtherCollision);
+                    } else if snake.size() <= other_snake.size() {
+                        return Some(CauseOfDeath::HeadToHead);
+                    }
+                }
+            } else if let Some(col) = other_snake.is_collision(&snake_head) {
+                if col != 0 {
+                    return Some(CauseOfDeath::SelfCollision);
+                }
+            }
+        }
+        None
+    }
+
     fn check_food(&self, pos: &Point) -> Option<usize> {
         self.food.iter().position(|food| food == pos)
     }
