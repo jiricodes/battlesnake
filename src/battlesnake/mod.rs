@@ -1,4 +1,5 @@
 pub use astar::Astar;
+pub use board::{Board, CauseOfDeath};
 pub use dfs::Dfs;
 pub use direction::{Direction, ALL_DIRECTIONS};
 pub use domove::Move;
@@ -6,11 +7,10 @@ pub use game_logger::{init_logger, SessionStats};
 pub use grid::{GameGrid, GridObject};
 pub use heuristic::Heuristic;
 pub use input::GameInfo;
+pub use minimax::get_move;
 pub use path::Path;
 pub use point::Point;
 pub use snake::{Snake, SnakeProps};
-pub use board::{Board, CauseOfDeath};
-pub use minimax::get_move;
 
 pub mod astar;
 pub mod board;

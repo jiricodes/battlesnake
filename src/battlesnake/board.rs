@@ -1,5 +1,5 @@
 use std::cmp::{Eq, Ord, Ordering, PartialEq, PartialOrd};
-use std::collections::{BinaryHeap, HashMap, HashSet};
+use std::collections::{BinaryHeap, HashMap, HashSet, VecDeque};
 use std::convert::TryFrom;
 
 use super::GameInfo;
@@ -45,6 +45,9 @@ impl PartialEq for OpenNode {
         self.1 == other.1
     }
 }
+
+#[derive(Debug, Clone)]
+pub struct Area(pub usize,pub usize,pub Option<Point>);
 
 // Static heuristics weight, assuming all tiles are hazard
 const H_WEIGHT: usize = 3 + 15;
@@ -188,9 +191,57 @@ impl Board {
         dead_snakes
     }
 
-    pub fn get_my_death (
-        &mut self,
-    ) -> Option <CauseOfDeath> {
+    fn snakes_as_hashset(&self) -> HashSet<Point> {
+        let mut ret: HashSet<Point> = HashSet::new();
+        for s in self.snakes.iter() {
+            ret.extend(s.body.nodes.iter());
+        }
+        ret
+    }
+
+    pub fn get_area(&self, hazards: &Vec<Point>) -> Vec<Area> {
+        let mut visited: HashMap<Point, usize> = HashMap::new();
+        let mut queue: HashSet<(Point, usize)> = HashSet::new();
+        for (i, snake) in self.snakes.iter().enumerate() {
+            visited.insert(snake.head(), i);
+            queue.insert((snake.head(), i));
+        }
+        let mut turn: usize = 1;
+        while !queue.is_empty() {
+            let mut next_queue: HashSet<(Point, usize)> = HashSet::new();
+            for (current, owner) in queue.iter() {
+                for m in self.get_pruned_moves(&current, turn).iter() {
+                    let new_point = *current + m;
+                    if !visited.contains_key(&new_point) {
+                        visited.insert(new_point, *owner);
+                        next_queue.insert((new_point, *owner));
+                    }
+                }
+            }
+            queue = next_queue;
+            turn += 1;
+        }
+
+        let mut ret = vec![Area(0, 0, None); self.snakes.len()];
+        for (point, &owner) in visited.iter() {
+            if self.check_food(point).is_some() {
+                let dist = self.snakes.get(owner).unwrap().head().manhattan_distance(point);
+                if ret.get(owner).unwrap().2.is_some() {
+                    let curr_dist = ret.get(owner).unwrap().2.unwrap().manhattan_distance(&self.snakes.get(owner).unwrap().head());
+                    if dist < curr_dist {
+                        ret.get_mut(owner).unwrap().2 = Some(*point);
+                    }
+                } else {
+                    ret.get_mut(owner).unwrap().2 = Some(*point);
+                }
+                ret.get_mut(owner).unwrap().1 += 1;
+            }
+            ret.get_mut(owner).unwrap().0 += if hazards.contains(point) { 1 } else { 16 };
+        }
+        ret
+    }
+
+    pub fn get_my_death(&mut self) -> Option<CauseOfDeath> {
         let snake = self.snakes[0].clone();
         let snake_head = snake.head();
         if !snake.has_health() {
@@ -223,6 +274,10 @@ impl Board {
 
     fn is_inbounds(&self, pos: &Point) -> bool {
         pos.is_not_negative() && (pos.x <= self.bound.x && pos.y <= self.bound.y)
+    }
+
+    pub fn get_total_area(&self) -> usize {
+        (self.bound.x + 1) as usize * (self.bound.y + 1) as usize
     }
 
     pub fn astar(&self, s: Point, e: Point, hazards: &Vec<Point>) -> Option<(usize, Path)> {
@@ -1345,5 +1400,315 @@ mod test {
         );
         let path = board.astar(Point { x: 7, y: 3 }, Point { x: 10, y: 6 }, hazards);
         assert!(path.is_none());
+    }
+
+    #[test]
+    fn area() {
+        let gameinfo = GameInfo::new(
+            r#"{
+            "game": {
+                "id": "2c2d43ec-0fdb-4bf4-9a00-8f1d243238d4",
+                "ruleset": {
+                    "name": "royale",
+                    "version": ""
+                },
+                "timeout": 500
+            },
+            "turn": 32,
+            "board": {
+                "width": 11,
+                "height": 11,
+                "snakes": [
+                    {
+                        "id": "gs_9Xdgwh9wPKktBtXphrMt4d67",
+                        "name": "Eel In Snake's Clothing",
+                        "body": [
+                            {
+                                "x": 3,
+                                "y": 7
+                            },
+                            {
+                                "x": 4,
+                                "y": 7
+                            },
+                            {
+                                "x": 4,
+                                "y": 8
+                            },
+                            {
+                                "x": 5,
+                                "y": 8
+                            },
+                            {
+                                "x": 6,
+                                "y": 8
+                            }
+                        ],
+                        "head": {
+                            "x": 3,
+                            "y": 7
+                        },
+                        "length": 5,
+                        "health": 88,
+                        "shout": "",
+                        "squad": ""
+                    },
+                    {
+                        "id": "gs_fhDCrB9BmRfgWBgXj9cBCxqR",
+                        "name": "Go  Giddy",
+                        "body": [
+                            {
+                                "x": 9,
+                                "y": 3
+                            },
+                            {
+                                "x": 9,
+                                "y": 4
+                            },
+                            {
+                                "x": 9,
+                                "y": 5
+                            },
+                            {
+                                "x": 8,
+                                "y": 5
+                            },
+                            {
+                                "x": 7,
+                                "y": 5
+                            },
+                            {
+                                "x": 7,
+                                "y": 6
+                            },
+                            {
+                                "x": 7,
+                                "y": 6
+                            }
+                        ],
+                        "head": {
+                            "x": 9,
+                            "y": 3
+                        },
+                        "length": 7,
+                        "health": 100,
+                        "shout": "",
+                        "squad": ""
+                    },
+                    {
+                        "id": "gs_KTTWwyytWTBjgXkyh8gDp9VD",
+                        "name": "Untimely Neglected Wearable",
+                        "body": [
+                            {
+                                "x": 7,
+                                "y": 3
+                            },
+                            {
+                                "x": 7,
+                                "y": 2
+                            },
+                            {
+                                "x": 8,
+                                "y": 2
+                            },
+                            {
+                                "x": 9,
+                                "y": 2
+                            },
+                            {
+                                "x": 9,
+                                "y": 1
+                            },
+                            {
+                                "x": 8,
+                                "y": 1
+                            },
+                            {
+                                "x": 7,
+                                "y": 1
+                            }
+                        ],
+                        "head": {
+                            "x": 7,
+                            "y": 3
+                        },
+                        "length": 7,
+                        "health": 96,
+                        "shout": "",
+                        "squad": ""
+                    },
+                    {
+                        "id": "gs_8fMbQg9DHB9fMGxR7Hv39P9Q",
+                        "name": "Danger Noodle - A*/Flood",
+                        "body": [
+                            {
+                                "x": 6,
+                                "y": 4
+                            },
+                            {
+                                "x": 6,
+                                "y": 3
+                            },
+                            {
+                                "x": 6,
+                                "y": 2
+                            },
+                            {
+                                "x": 5,
+                                "y": 2
+                            },
+                            {
+                                "x": 4,
+                                "y": 2
+                            }
+                        ],
+                        "head": {
+                            "x": 6,
+                            "y": 4
+                        },
+                        "length": 5,
+                        "health": 80,
+                        "shout": "",
+                        "squad": ""
+                    }
+                ],
+                "food": [
+                    {
+                        "x": 10,
+                        "y": 6
+                    }
+                ],
+                "hazards": [
+                    {
+                        "x": 10,
+                        "y": 0
+                    },
+                    {
+                        "x": 10,
+                        "y": 1
+                    },
+                    {
+                        "x": 10,
+                        "y": 2
+                    },
+                    {
+                        "x": 10,
+                        "y": 3
+                    },
+                    {
+                        "x": 10,
+                        "y": 4
+                    },
+                    {
+                        "x": 10,
+                        "y": 5
+                    },
+                    {
+                        "x": 10,
+                        "y": 6
+                    },
+                    {
+                        "x": 10,
+                        "y": 7
+                    },
+                    {
+                        "x": 10,
+                        "y": 8
+                    },
+                    {
+                        "x": 10,
+                        "y": 9
+                    },
+                    {
+                        "x": 10,
+                        "y": 10
+                    }
+                ]
+            },
+            "you": {
+                "id": "gs_fhDCrB9BmRfgWBgXj9cBCxqR",
+                "name": "Go  Giddy",
+                "body": [
+                    {
+                        "x": 9,
+                        "y": 3
+                    },
+                    {
+                        "x": 9,
+                        "y": 4
+                    },
+                    {
+                        "x": 9,
+                        "y": 5
+                    },
+                    {
+                        "x": 8,
+                        "y": 5
+                    },
+                    {
+                        "x": 7,
+                        "y": 5
+                    },
+                    {
+                        "x": 7,
+                        "y": 6
+                    },
+                    {
+                        "x": 7,
+                        "y": 6
+                    }
+                ],
+                "head": {
+                    "x": 9,
+                    "y": 3
+                },
+                "length": 7,
+                "health": 100,
+                "shout": "",
+                "squad": ""
+            }
+        }"#,
+        );
+        let board = Board::from_api(&gameinfo);
+        let hazards = gameinfo.get_hazards();
+        GameStateLog::from_api(&gameinfo).print();
+        let snakes_bodies_vec = vec![
+            Point { x: 3, y: 7 },
+            Point { x: 4, y: 7 },
+            Point { x: 4, y: 8 },
+            Point { x: 5, y: 8 },
+            Point { x: 6, y: 8 },
+            Point { x: 9, y: 3 },
+            Point { x: 9, y: 4 },
+            Point { x: 9, y: 5 },
+            Point { x: 8, y: 5 },
+            Point { x: 7, y: 5 },
+            Point { x: 7, y: 6 },
+            Point { x: 7, y: 6 },
+            Point { x: 7, y: 3 },
+            Point { x: 7, y: 2 },
+            Point { x: 8, y: 2 },
+            Point { x: 9, y: 2 },
+            Point { x: 9, y: 1 },
+            Point { x: 8, y: 1 },
+            Point { x: 7, y: 1 },
+            Point { x: 6, y: 4 },
+            Point { x: 6, y: 3 },
+            Point { x: 6, y: 2 },
+            Point { x: 5, y: 2 },
+            Point { x: 4, y: 2 },
+        ];
+        let mut expected: HashSet<Point> = HashSet::new();
+        for p in snakes_bodies_vec {
+            expected.insert(p);
+        }
+        assert_eq!(expected, board.snakes_as_hashset());
+        // assert_eq!(16*3, board.get_area(&Point{x: 7, y:3}, &hazards));
+        // let moves = board.get_pruned_moves(&Point{x: 9, y:3}, 1);
+        // dbg!(&moves);
+        // assert_eq!(vec![Direction::Right, Direction::Left], moves);
+        // for m in moves {
+        //     dbg!(board.get_area(&(Point{x: 9, y:3} + m), &hazards));
+        // }
     }
 }

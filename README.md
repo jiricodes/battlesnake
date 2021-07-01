@@ -85,8 +85,8 @@ source $HOME/.cargo/env
 - [x] move A* to board
 - heuristics
     - [ ] floodfill
-    - [ ] A*
-    - [ ] aggression
+    - [x] A*
+    - [x] aggression
     - [ ] consider Evolutionary algo
 
 ### ASAP

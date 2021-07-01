@@ -1,16 +1,16 @@
 use log::*;
-use std::cmp::{Eq, Ord, Ordering, PartialEq, PartialOrd};
+use std::cmp::{Eq, Ord, Ordering, PartialEq, PartialOrd, max};
 use std::collections::BinaryHeap;
 use std::sync::Mutex;
 use std::time::{Duration, SystemTime};
 
 use rayon::prelude::*;
 
-use super::{Board, CauseOfDeath};
-use super::Move;
-use super::GameInfo;
 use super::Direction;
+use super::GameInfo;
+use super::Move;
 use super::Point;
+use super::{Board, CauseOfDeath};
 
 struct State {
     board: Board,
@@ -78,43 +78,84 @@ pub fn heuristic(board: &Board, snake_index: usize, hazards: &Vec<Point>) -> f32
     // floodfill / area dominance
     // A* 1.0 - (cost / hp)
     // aggression
-    if snake_index == 0 && board.snakes.len() == 1 {
+
+    let n_snakes = board.snakes.len();
+
+    if snake_index == 0 && n_snakes == 1 {
         return 2.0;
     }
 
-    let snake_len = board.snakes[snake_index].size();
+    let snake = board.snakes.get(snake_index).unwrap();
+
+    let areas = board.get_area(hazards);
+    let snake_area = areas.get(snake_index).unwrap();
+    let total_area = max(1, areas.iter().map(|a| a.0).sum());
+
+    let area_control_score = snake_area.0 as f32 / total_area as f32;
+
+    let snake_hp = snake.health as usize;
+    let snake_head = snake.head();
+    let snake_len = snake.size();
+
+    let food_score = if snake_hp == 0 {
+        0.0
+    } else {
+        if let Some(f) = snake_area.2 {
+            1.0 - min_f32(1.0, board.astar(snake_head, f, hazards).unwrap().0 as f32 / snake_hp as f32)
+        } else {
+            min_f32(1.0, 0.15 * snake_hp as f32 * n_snakes as f32 / total_area as f32)
+        }
+    };
+
+    let htoh_score = board.snakes.iter().enumerate().filter(|(other_index, other)| {
+        *other_index == snake_index || other.size() < snake_len || snake_head.manhattan_distance(&other.head()) < 2
+    }).count() as f32 / n_snakes as f32;
+
+    let snakes_ratio = 1.0 / n_snakes as f32;
+
+    
     let mut tot_lens = 0;
     for s in board.snakes.iter() {
         tot_lens += s.size();
     }
     let len_score = snake_len as f32 / tot_lens as f32;
 
-    let mut aval: f32 = if board.food.is_empty() {1.0} else {0.0};
-    for food in board.food.iter() {
-        let res = board.astar(board.snakes[snake_index].head(), *food, hazards);
-        if res.is_some() {
-            let (g_score, _) = res.unwrap();
-            // println!("{} {} -> rat {} -> {}")
-            let hp = board.snakes[snake_index].health as usize;
-            if g_score <= hp {
-                let new_val = (hp - g_score) as f32 / hp as f32;
-                aval = max_f32(aval, new_val);
-            }
-            }
-    }
+    // let mut aval: f32 = if board.food.is_empty() { 1.0 } else { 0.1 };
+    // for food in board.food.iter() {
+    //     let res = board.astar(board.snakes[snake_index].head(), *food, hazards);
+    //     if res.is_some() {
+    //         let (g_score, _) = res.unwrap();
+    //         // println!("{} {} -> rat {} -> {}")
+    //         let hp = board.snakes[snake_index].health as usize;
+    //         if g_score <= hp {
+    //             let new_val = (hp - g_score) as f32 / hp as f32;
+    //             aval = max_f32(aval, new_val);
+    //         }
+    //     }
+    // }
 
-    let mut aggression: f32 = 0.1;
-    for snake in board.snakes.iter() {
-        if snake.size() < snake_len {
-            if snake.head() == board.snakes[snake_index].head() {
-                aggression = 1.1;
-            } else {
-                aggression = 1.0 / snake.head().manhattan_distance(&board.snakes[snake_index].head()) as f32;
-            }
-        }
-    }
+    // // let mut aggression: f32 = 0.1;
+    // // for snake in board.snakes.iter() {
+    // //     if snake.size() < snake_len {
+    // //         if snake.head() == board.snakes[snake_index].head() {
+    // //             aggression = 1.1;
+    // //         } else {
+    // //             aggression = 1.0
+    // //                 / snake
+    // //                     .head()
+    // //                     .manhattan_distance(&board.snakes[snake_index].head())
+    // //                     as f32;
+    // //         }
+    // //     }
+    // // }
+
+    // let total_area = board.get_total_area() * 16 - hazards.len() * 15;
+    // let effective_area = board.get_area(&board.snakes[snake_index].head(), &hazards);
+    // let area_ratio = effective_area as f32 / total_area as f32;
     //finally get the ratio. should implement here a weighted ratio
-    aval * aggression * len_score
+    // println!("aval {}, aggression {}, len_score {}, area_ratio {}", aval, aggression, len_score, area_ratio);
+    // aval * len_score * area_ratio
+    area_control_score * food_score * htoh_score * snakes_ratio * len_score
 }
 
 pub fn get_move(gameinfo: &GameInfo, time_budget: Duration) -> Move {
@@ -147,6 +188,10 @@ pub fn get_move(gameinfo: &GameInfo, time_budget: Duration) -> Move {
             // );
             break 'minimax;
         }
+
+        // if first.depth == 10 {
+        //     break 'minimax;
+        // }
 
         let all_snakes_moves = first.board.get_all_moves();
 
@@ -199,7 +244,7 @@ pub fn get_move(gameinfo: &GameInfo, time_budget: Duration) -> Move {
         for worst_outcome in worst_outcomes.lock().unwrap().iter_mut() {
             if let Some(state) = worst_outcome.take() {
                 if state.depth < 3 {
-                    println!("Depth 1 option: dir={:?} score={}", state.root, state.h);
+                    println!("Depth {} option: dir={:?} score={}", state.depth, state.root, state.h);
                 }
                 if state.h >= 0.0 {
                     queue.push(state);
@@ -638,5 +683,279 @@ mod test {
         let res = get_move(&data, Duration::from_millis(280));
         GameStateLog::from_api(&data).print();
         dbg!(res);
+    }
+    
+    #[test]
+    fn test_heuristic() {
+        let gameinfo = GameInfo::new(
+            r#"{
+            "game": {
+                "id": "2c2d43ec-0fdb-4bf4-9a00-8f1d243238d4",
+                "ruleset": {
+                    "name": "royale",
+                    "version": ""
+                },
+                "timeout": 500
+            },
+            "turn": 32,
+            "board": {
+                "width": 11,
+                "height": 11,
+                "snakes": [
+                    {
+                        "id": "gs_9Xdgwh9wPKktBtXphrMt4d67",
+                        "name": "Eel In Snake's Clothing",
+                        "body": [
+                            {
+                                "x": 3,
+                                "y": 7
+                            },
+                            {
+                                "x": 4,
+                                "y": 7
+                            },
+                            {
+                                "x": 4,
+                                "y": 8
+                            },
+                            {
+                                "x": 5,
+                                "y": 8
+                            },
+                            {
+                                "x": 6,
+                                "y": 8
+                            }
+                        ],
+                        "head": {
+                            "x": 3,
+                            "y": 7
+                        },
+                        "length": 5,
+                        "health": 88,
+                        "shout": "",
+                        "squad": ""
+                    },
+                    {
+                        "id": "gs_fhDCrB9BmRfgWBgXj9cBCxqR",
+                        "name": "Go  Giddy",
+                        "body": [
+                            {
+                                "x": 9,
+                                "y": 3
+                            },
+                            {
+                                "x": 9,
+                                "y": 4
+                            },
+                            {
+                                "x": 9,
+                                "y": 5
+                            },
+                            {
+                                "x": 8,
+                                "y": 5
+                            },
+                            {
+                                "x": 7,
+                                "y": 5
+                            },
+                            {
+                                "x": 7,
+                                "y": 6
+                            },
+                            {
+                                "x": 7,
+                                "y": 6
+                            }
+                        ],
+                        "head": {
+                            "x": 9,
+                            "y": 3
+                        },
+                        "length": 7,
+                        "health": 100,
+                        "shout": "",
+                        "squad": ""
+                    },
+                    {
+                        "id": "gs_KTTWwyytWTBjgXkyh8gDp9VD",
+                        "name": "Untimely Neglected Wearable",
+                        "body": [
+                            {
+                                "x": 7,
+                                "y": 3
+                            },
+                            {
+                                "x": 7,
+                                "y": 2
+                            },
+                            {
+                                "x": 8,
+                                "y": 2
+                            },
+                            {
+                                "x": 9,
+                                "y": 2
+                            },
+                            {
+                                "x": 9,
+                                "y": 1
+                            },
+                            {
+                                "x": 8,
+                                "y": 1
+                            },
+                            {
+                                "x": 7,
+                                "y": 1
+                            }
+                        ],
+                        "head": {
+                            "x": 7,
+                            "y": 3
+                        },
+                        "length": 7,
+                        "health": 96,
+                        "shout": "",
+                        "squad": ""
+                    },
+                    {
+                        "id": "gs_8fMbQg9DHB9fMGxR7Hv39P9Q",
+                        "name": "Danger Noodle - A*/Flood",
+                        "body": [
+                            {
+                                "x": 6,
+                                "y": 4
+                            },
+                            {
+                                "x": 6,
+                                "y": 3
+                            },
+                            {
+                                "x": 6,
+                                "y": 2
+                            },
+                            {
+                                "x": 5,
+                                "y": 2
+                            },
+                            {
+                                "x": 4,
+                                "y": 2
+                            }
+                        ],
+                        "head": {
+                            "x": 6,
+                            "y": 4
+                        },
+                        "length": 5,
+                        "health": 80,
+                        "shout": "",
+                        "squad": ""
+                    }
+                ],
+                "food": [
+                    {
+                        "x": 10,
+                        "y": 6
+                    }
+                ],
+                "hazards": [
+                    {
+                        "x": 10,
+                        "y": 0
+                    },
+                    {
+                        "x": 10,
+                        "y": 1
+                    },
+                    {
+                        "x": 10,
+                        "y": 2
+                    },
+                    {
+                        "x": 10,
+                        "y": 3
+                    },
+                    {
+                        "x": 10,
+                        "y": 4
+                    },
+                    {
+                        "x": 10,
+                        "y": 5
+                    },
+                    {
+                        "x": 10,
+                        "y": 6
+                    },
+                    {
+                        "x": 10,
+                        "y": 7
+                    },
+                    {
+                        "x": 10,
+                        "y": 8
+                    },
+                    {
+                        "x": 10,
+                        "y": 9
+                    },
+                    {
+                        "x": 10,
+                        "y": 10
+                    }
+                ]
+            },
+            "you": {
+                "id": "gs_fhDCrB9BmRfgWBgXj9cBCxqR",
+                "name": "Go  Giddy",
+                "body": [
+                    {
+                        "x": 9,
+                        "y": 3
+                    },
+                    {
+                        "x": 9,
+                        "y": 4
+                    },
+                    {
+                        "x": 9,
+                        "y": 5
+                    },
+                    {
+                        "x": 8,
+                        "y": 5
+                    },
+                    {
+                        "x": 7,
+                        "y": 5
+                    },
+                    {
+                        "x": 7,
+                        "y": 6
+                    },
+                    {
+                        "x": 7,
+                        "y": 6
+                    }
+                ],
+                "head": {
+                    "x": 9,
+                    "y": 3
+                },
+                "length": 7,
+                "health": 100,
+                "shout": "",
+                "squad": ""
+            }
+        }"#,
+        );
+        let board = Board::from_api(&gameinfo);
+        let hazards = gameinfo.get_hazards();
+        GameStateLog::from_api(&gameinfo).print();
+        let heur = heuristic(&board, 0, &hazards);
+        dbg!(heur);
     }
 }

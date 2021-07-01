@@ -11,8 +11,8 @@ use colored::{ColoredString, Colorize};
 use log::*;
 use serde::{Deserialize, Serialize};
 
+use std::collections::HashMap;
 use std::fmt;
-use std::collections::{HashMap};
 use std::time::{Duration, SystemTime};
 
 use super::GameInfo;
@@ -256,14 +256,18 @@ impl SessionStats {
                 self.wins += 1;
             }
             self.running_games.remove(id);
-        }  
+        }
     }
 
     pub fn garbage_collect(&mut self) {
         let mut to_end: Vec<String> = Vec::new();
         let now = SystemTime::now();
         for (key, (_, start)) in self.running_games.iter() {
-            if now.duration_since(*start).unwrap_or(Duration::from_millis(1)) > self.timeout {
+            if now
+                .duration_since(*start)
+                .unwrap_or(Duration::from_millis(1))
+                > self.timeout
+            {
                 to_end.push((*key).clone());
             }
         }
@@ -275,7 +279,7 @@ impl SessionStats {
     pub fn get_running_len(&self) -> usize {
         self.running_games.len()
     }
-    
+
     pub fn set_timeout(&mut self, new_timeout: Duration) {
         self.timeout = new_timeout;
     }
@@ -285,11 +289,7 @@ impl SessionStats {
     }
 
     pub fn get_string(&self) -> String {
-        let games = if self.games != 0 {
-            self.games
-        } else {
-            1
-        };
+        let games = if self.games != 0 { self.games } else { 1 };
         let mut ret = format!("<html><body><h3>Session Stats:</h3><p>Games: {}<br>Wins: {}<br>Win ratio: {}%<br>Avg turns: {}<br>Games in progress:<br></p>",
             self.games,
             self.wins,
@@ -303,13 +303,16 @@ impl SessionStats {
 
 impl fmt::Display for SessionStats {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let games = if self.games != 0 {
-            self.games
-        } else {
-            1
-        };
-        write!(f, "Games {}, Wins {}, Win ratio {:.2}%, Average Turns {}. In progress {} games.",
-        self.games, self.wins, (self.wins as f32 / games as f32) * 100.00, self.total_turns / games, self.get_running_len())
+        let games = if self.games != 0 { self.games } else { 1 };
+        write!(
+            f,
+            "Games {}, Wins {}, Win ratio {:.2}%, Average Turns {}. In progress {} games.",
+            self.games,
+            self.wins,
+            (self.wins as f32 / games as f32) * 100.00,
+            self.total_turns / games,
+            self.get_running_len()
+        )
     }
 }
 
