@@ -91,6 +91,7 @@ pub fn heuristic(board: &Board, snake_index: usize, hazards: &Vec<Point>) -> f32
     let snake_area = areas.get(snake_index).unwrap();
     let total_area = max(1, areas.iter().map(|a| a.0).sum());
 
+    // Area Control
     let area_control_score = snake_area.0 as f32 / total_area as f32;
 
     let snake_hp = snake.health as usize;
@@ -108,7 +109,7 @@ pub fn heuristic(board: &Board, snake_index: usize, hazards: &Vec<Point>) -> f32
     };
 
     let htoh_score = board.snakes.iter().enumerate().filter(|(other_index, other)| {
-        *other_index == snake_index || other.size() < snake_len || snake_head.manhattan_distance(&other.head()) < 2
+        *other_index == snake_index || other.size() < snake_len || snake_head.manhattan_distance(&other.head()) > 2
     }).count() as f32 / n_snakes as f32;
 
     let snakes_ratio = 1.0 / n_snakes as f32;
@@ -119,20 +120,6 @@ pub fn heuristic(board: &Board, snake_index: usize, hazards: &Vec<Point>) -> f32
         tot_lens += s.size();
     }
     let len_score = snake_len as f32 / tot_lens as f32;
-
-    // let mut aval: f32 = if board.food.is_empty() { 1.0 } else { 0.1 };
-    // for food in board.food.iter() {
-    //     let res = board.astar(board.snakes[snake_index].head(), *food, hazards);
-    //     if res.is_some() {
-    //         let (g_score, _) = res.unwrap();
-    //         // println!("{} {} -> rat {} -> {}")
-    //         let hp = board.snakes[snake_index].health as usize;
-    //         if g_score <= hp {
-    //             let new_val = (hp - g_score) as f32 / hp as f32;
-    //             aval = max_f32(aval, new_val);
-    //         }
-    //     }
-    // }
 
     // // let mut aggression: f32 = 0.1;
     // // for snake in board.snakes.iter() {
@@ -148,13 +135,7 @@ pub fn heuristic(board: &Board, snake_index: usize, hazards: &Vec<Point>) -> f32
     // //         }
     // //     }
     // // }
-
-    // let total_area = board.get_total_area() * 16 - hazards.len() * 15;
-    // let effective_area = board.get_area(&board.snakes[snake_index].head(), &hazards);
-    // let area_ratio = effective_area as f32 / total_area as f32;
-    //finally get the ratio. should implement here a weighted ratio
-    // println!("aval {}, aggression {}, len_score {}, area_ratio {}", aval, aggression, len_score, area_ratio);
-    // aval * len_score * area_ratio
+    
     area_control_score * food_score * htoh_score * snakes_ratio * len_score
 }
 
