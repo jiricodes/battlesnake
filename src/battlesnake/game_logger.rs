@@ -9,6 +9,7 @@
 use chrono::{DateTime, Local};
 use colored::{ColoredString, Colorize};
 use log::*;
+use serde::{Deserialize, Serialize};
 
 use std::fmt;
 use std::collections::{HashMap};
@@ -216,6 +217,7 @@ impl GameStateLog {
     }
 }
 
+#[derive(Serialize, Deserialize, Debug)]
 pub struct SessionStats {
     games: usize,
     wins: usize,
@@ -280,6 +282,22 @@ impl SessionStats {
 
     pub fn get_timeout(&mut self) -> u64 {
         self.timeout.as_secs()
+    }
+
+    pub fn get_string(&self) -> String {
+        let games = if self.games != 0 {
+            self.games
+        } else {
+            1
+        };
+        let mut ret = format!("<html><body><h3>Session Stats:</h3><p>Games: {}<br>Wins: {}<br>Win ratio: {}%<br>Avg turns: {}<br>Games in progress:<br></p>",
+            self.games,
+            self.wins,
+            (self.wins as f32 / games as f32) * 100.00, self.total_turns / games);
+        for (id, (turn, _)) in self.running_games.iter() {
+            ret = ret + &format!("<p style=\"text-indent: 40px\">{} [{}]</p>", id, turn);
+        }
+        ret + "</body></html>"
     }
 }
 

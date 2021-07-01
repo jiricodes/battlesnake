@@ -39,6 +39,14 @@ async fn index() -> impl Responder {
     HttpResponse::Ok().body(snake.get_string())
 }
 
+#[get("/stats")]
+async fn get_stats() -> impl Responder {
+    debug!("Received GET /stats");
+    let session_stats = SESSION_STATS.lock().unwrap();
+    HttpResponse::Ok().body(session_stats.get_string())
+}
+
+
 #[post("/move")]
 async fn domove(data: String) -> impl Responder {
     let start_time = SystemTime::now();
@@ -142,6 +150,7 @@ async fn main() -> io::Result<()> {
             .service(domove)
             .service(start)
             .service(end)
+            .service(get_stats)
     })
     .bind(&address)?
     .run()

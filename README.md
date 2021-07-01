@@ -8,22 +8,22 @@ Currently working on implementation solely for Royale mode due to ongoing [Summe
 ### Aggregate
 On aggregate all version have achieved following results during battlesnake's Summer League Event 2021:
 ```
-Jun 30
+Jul 1
 
-Games: 2,335
-Wins: 693
-Losses: 1,642
-Win Rate: 29.68%
+Games: 2,447
+Wins: 752
+Losses: 1,695
+Win Rate: 30.73%
 ```
 
 ### v0.1.1
 ```
 Jun 30
 
-Games: 127
-Wins: 51
-Losses: 76
-Win Rate: 40.16%
+Games: 239
+Wins: 110
+Losses: 129
+Win Rate: 46.03%
 ```
 Slightly updated heuristics. WIP
 
