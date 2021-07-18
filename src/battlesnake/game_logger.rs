@@ -316,6 +316,23 @@ impl fmt::Display for SessionStats {
     }
 }
 
+pub fn area_control_visualiser(data: &HashMap<Point, usize>, dim: (usize, usize)) {
+    dbg!(data.len());
+    let mut line = String::new();
+    for j in 1..(dim.0 * dim.1) + 1 {
+        let i = (dim.0 * dim.1) - j;
+        let p = Point {x: (i % dim.0) as i32, y: (i / dim.1) as i32};
+        let o = data.get(&p).unwrap();
+        let t = format!("{}", *o);
+        line.push_str(&t);
+        if j % dim.0 == 0 {
+            println!("{}", line.chars().rev().collect::<String>());
+            line.clear();
+        }
+    }
+}
+
+
 #[cfg(test)]
 mod test {
     use super::*;

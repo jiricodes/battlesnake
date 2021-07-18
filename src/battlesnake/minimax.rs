@@ -92,9 +92,11 @@ pub fn heuristic(board: &Board, snake_index: usize, hazards: &Vec<Point>) -> f32
     let total_area = max(1, areas.iter().map(|a| a.0).sum());
 
     // Area Control
+    // println!("MyArea: {} | Total {}", snake_area.0, total_area);
     let area_control_score = snake_area.0 as f32 / total_area as f32;
 
     let snake_hp = snake.health as usize;
+    // let snake_mod_hp = if snake_hp > 20 { snake_hp - 20 } else {snake_hp};
     let snake_head = snake.head();
     let snake_len = snake.size();
 
@@ -102,7 +104,8 @@ pub fn heuristic(board: &Board, snake_index: usize, hazards: &Vec<Point>) -> f32
         0.0
     } else {
         if let Some(f) = snake_area.2 {
-            1.0 - min_f32(1.0, board.astar(snake_head, f, hazards).unwrap().0 as f32 / snake_hp as f32)
+            // println!("Food g_score: {}", board.astar(snake_head, f, hazards).unwrap().0 as f32);
+            max_f32(0.0, (snake_hp as f32 - board.astar(snake_head, f, hazards).unwrap().0 as f32) / snake_hp as f32)
         } else {
             min_f32(1.0, 0.15 * snake_hp as f32 * n_snakes as f32 / total_area as f32)
         }
@@ -119,24 +122,28 @@ pub fn heuristic(board: &Board, snake_index: usize, hazards: &Vec<Point>) -> f32
     for s in board.snakes.iter() {
         tot_lens += s.size();
     }
-    let len_score = snake_len as f32 / tot_lens as f32;
-
-    // // let mut aggression: f32 = 0.1;
-    // // for snake in board.snakes.iter() {
-    // //     if snake.size() < snake_len {
-    // //         if snake.head() == board.snakes[snake_index].head() {
-    // //             aggression = 1.1;
-    // //         } else {
-    // //             aggression = 1.0
-    // //                 / snake
-    // //                     .head()
-    // //                     .manhattan_distance(&board.snakes[snake_index].head())
-    // //                     as f32;
-    // //         }
-    // //     }
-    // // }
+    let mut len_score = snake_len as f32 / tot_lens as f32;
+    len_score = len_score * len_score;
     
-    area_control_score * food_score * htoh_score * snakes_ratio * len_score
+    let health_score = snake_hp as f32 / 100.0;
+
+    // let mut aggression: f32 = 0.1;
+    // for snake in board.snakes.iter() {
+    //     if snake.size() < snake_len {
+    //         if snake.head() == board.snakes[snake_index].head() {
+    //             aggression = 1.1;
+    //         } else {
+    //             aggression = 1.0
+    //                 / snake
+    //                     .head()
+    //                     .manhattan_distance(&board.snakes[snake_index].head())
+    //                     as f32;
+    //         }
+    //     }
+    // }
+    
+    // println!("Area: {:10.6}\nFood: {:10.6}\nH2H: {:11.6}\nSrat: {:10.6}\nlrat: {:10.6}\n", area_control_score, food_score, htoh_score, snakes_ratio, len_score);
+    area_control_score * food_score * htoh_score * snakes_ratio * len_score * health_score //* aggression
 }
 
 pub fn get_move(gameinfo: &GameInfo, time_budget: Duration) -> Move {
@@ -678,6 +685,195 @@ mod test {
                 },
                 "timeout": 500
             },
+            "turn": 69,
+            "board": {
+                "width": 11,
+                "height": 11,
+                "snakes": [
+                    {
+                        "id": "gs_9Xdgwh9wPKktBtXphrMt4d67",
+                        "name": "Eel In Snake's Clothing",
+                        "body": [
+                            {
+                                "x": 0,
+                                "y": 5
+                            },
+                            {
+                                "x": 1,
+                                "y": 5
+                            },
+                            {
+                                "x": 1,
+                                "y": 6
+                            },
+                            {
+                                "x": 1,
+                                "y": 7
+                            },
+                            {
+                                "x": 0,
+                                "y": 7
+                            }
+                        ],
+                        "head": {
+                            "x": 0,
+                            "y": 5
+                        },
+                        "length": 5,
+                        "health": 97,
+                        "shout": "",
+                        "squad": ""
+                    },
+                    {
+                        "id": "gs_fhDCrB9BmRfgWBgXj9cBCxqR",
+                        "name": "Go  Giddy",
+                        "body": [
+                            {
+                                "x": 7,
+                                "y": 2
+                            },
+                            {
+                                "x": 7,
+                                "y": 1
+                            },
+                            {
+                                "x": 6,
+                                "y": 1
+                            },
+                            {
+                                "x": 6,
+                                "y": 0
+                            }
+                        ],
+                        "head": {
+                            "x": 7,
+                            "y": 2
+                        },
+                        "length": 4,
+                        "health": 95,
+                        "shout": "",
+                        "squad": ""
+                    },
+                    {
+                        "id": "gs_KTTWwyytWTBjgXkyh8gDp9VD",
+                        "name": "Untimely Neglected Wearable",
+                        "body": [
+                            {
+                                "x": 2,
+                                "y": 3
+                            },
+                            {
+                                "x": 1,
+                                "y": 3
+                            },
+                            {
+                                "x": 0,
+                                "y": 3
+                            },
+                            {
+                                "x": 0,
+                                "y": 2
+                            }
+                        ],
+                        "head": {
+                            "x": 2,
+                            "y": 3
+                        },
+                        "length": 4,
+                        "health": 95,
+                        "shout": "",
+                        "squad": ""
+                    },
+                    {
+                        "id": "gs_8fMbQg9DHB9fMGxR7Hv39P9Q",
+                        "name": "Danger Noodle - A*/Flood",
+                        "body": [
+                            {
+                                "x": 5,
+                                "y": 4
+                            },
+                            {
+                                "x": 5,
+                                "y": 5
+                            },
+                            {
+                                "x": 5,
+                                "y": 6
+                            },
+                            {
+                                "x": 4,
+                                "y": 6
+                            },
+                            {
+                                "x": 3,
+                                "y": 6
+                            }
+                        ],
+                        "head": {
+                            "x": 5,
+                            "y": 4
+                        },
+                        "length": 5,
+                        "health": 99,
+                        "shout": "",
+                        "squad": ""
+                    }
+                ],
+                "food": [
+                    {
+                        "x": 9,
+                        "y": 1
+                    }
+                ],
+                "hazards": []
+            },
+            "you": {
+                "id": "gs_fhDCrB9BmRfgWBgXj9cBCxqR",
+                        "name": "Go  Giddy",
+                        "body": [
+                            {
+                                "x": 7,
+                                "y": 2
+                            },
+                            {
+                                "x": 7,
+                                "y": 1
+                            },
+                            {
+                                "x": 6,
+                                "y": 1
+                            },
+                            {
+                                "x": 6,
+                                "y": 0
+                            }
+                        ],
+                        "head": {
+                            "x": 7,
+                            "y": 2
+                        },
+                        "length": 4,
+                        "health": 95,
+                        "shout": "",
+                        "squad": ""
+            }
+        }"#,
+        );
+        let board = Board::from_api(&gameinfo);
+        let hazards = gameinfo.get_hazards();
+        GameStateLog::from_api(&gameinfo).print();
+        let heur = heuristic(&board, 0, &hazards);
+        dbg!(heur);
+        let gameinfo = GameInfo::new(
+            r#"{
+            "game": {
+                "id": "2c2d43ec-0fdb-4bf4-9a00-8f1d243238d4",
+                "ruleset": {
+                    "name": "royale",
+                    "version": ""
+                },
+                "timeout": 500
+            },
             "turn": 32,
             "board": {
                 "width": 11,
@@ -688,32 +884,32 @@ mod test {
                         "name": "Eel In Snake's Clothing",
                         "body": [
                             {
-                                "x": 3,
+                                "x": 0,
+                                "y": 5
+                            },
+                            {
+                                "x": 1,
+                                "y": 5
+                            },
+                            {
+                                "x": 1,
+                                "y": 6
+                            },
+                            {
+                                "x": 1,
                                 "y": 7
                             },
                             {
-                                "x": 4,
+                                "x": 0,
                                 "y": 7
-                            },
-                            {
-                                "x": 4,
-                                "y": 8
-                            },
-                            {
-                                "x": 5,
-                                "y": 8
-                            },
-                            {
-                                "x": 6,
-                                "y": 8
                             }
                         ],
                         "head": {
-                            "x": 3,
-                            "y": 7
+                            "x": 0,
+                            "y": 5
                         },
                         "length": 5,
-                        "health": 88,
+                        "health": 97,
                         "shout": "",
                         "squad": ""
                     },
@@ -722,40 +918,28 @@ mod test {
                         "name": "Go  Giddy",
                         "body": [
                             {
-                                "x": 9,
-                                "y": 3
-                            },
-                            {
-                                "x": 9,
-                                "y": 4
-                            },
-                            {
-                                "x": 9,
-                                "y": 5
-                            },
-                            {
                                 "x": 8,
-                                "y": 5
+                                "y": 1
                             },
                             {
                                 "x": 7,
-                                "y": 5
+                                "y": 1
                             },
                             {
-                                "x": 7,
-                                "y": 6
+                                "x": 6,
+                                "y": 1
                             },
                             {
-                                "x": 7,
-                                "y": 6
+                                "x": 6,
+                                "y": 0
                             }
                         ],
                         "head": {
-                            "x": 9,
-                            "y": 3
+                            "x": 8,
+                            "y": 1
                         },
-                        "length": 7,
-                        "health": 100,
+                        "length": 4,
+                        "health": 40,
                         "shout": "",
                         "squad": ""
                     },
@@ -764,40 +948,28 @@ mod test {
                         "name": "Untimely Neglected Wearable",
                         "body": [
                             {
-                                "x": 7,
+                                "x": 2,
                                 "y": 3
                             },
                             {
-                                "x": 7,
+                                "x": 1,
+                                "y": 3
+                            },
+                            {
+                                "x": 0,
+                                "y": 3
+                            },
+                            {
+                                "x": 0,
                                 "y": 2
-                            },
-                            {
-                                "x": 8,
-                                "y": 2
-                            },
-                            {
-                                "x": 9,
-                                "y": 2
-                            },
-                            {
-                                "x": 9,
-                                "y": 1
-                            },
-                            {
-                                "x": 8,
-                                "y": 1
-                            },
-                            {
-                                "x": 7,
-                                "y": 1
                             }
                         ],
                         "head": {
-                            "x": 7,
+                            "x": 2,
                             "y": 3
                         },
-                        "length": 7,
-                        "health": 96,
+                        "length": 4,
+                        "health": 95,
                         "shout": "",
                         "squad": ""
                     },
@@ -806,130 +978,73 @@ mod test {
                         "name": "Danger Noodle - A*/Flood",
                         "body": [
                             {
-                                "x": 6,
+                                "x": 5,
                                 "y": 4
                             },
                             {
-                                "x": 6,
-                                "y": 3
-                            },
-                            {
-                                "x": 6,
-                                "y": 2
+                                "x": 5,
+                                "y": 5
                             },
                             {
                                 "x": 5,
-                                "y": 2
+                                "y": 6
                             },
                             {
                                 "x": 4,
-                                "y": 2
+                                "y": 6
+                            },
+                            {
+                                "x": 3,
+                                "y": 6
                             }
                         ],
                         "head": {
-                            "x": 6,
+                            "x": 5,
                             "y": 4
                         },
                         "length": 5,
-                        "health": 80,
+                        "health": 99,
                         "shout": "",
                         "squad": ""
                     }
                 ],
                 "food": [
                     {
-                        "x": 10,
-                        "y": 6
+                        "x": 9,
+                        "y": 1
                     }
                 ],
-                "hazards": [
-                    {
-                        "x": 10,
-                        "y": 0
-                    },
-                    {
-                        "x": 10,
-                        "y": 1
-                    },
-                    {
-                        "x": 10,
-                        "y": 2
-                    },
-                    {
-                        "x": 10,
-                        "y": 3
-                    },
-                    {
-                        "x": 10,
-                        "y": 4
-                    },
-                    {
-                        "x": 10,
-                        "y": 5
-                    },
-                    {
-                        "x": 10,
-                        "y": 6
-                    },
-                    {
-                        "x": 10,
-                        "y": 7
-                    },
-                    {
-                        "x": 10,
-                        "y": 8
-                    },
-                    {
-                        "x": 10,
-                        "y": 9
-                    },
-                    {
-                        "x": 10,
-                        "y": 10
-                    }
-                ]
+                "hazards": []
             },
             "you": {
                 "id": "gs_fhDCrB9BmRfgWBgXj9cBCxqR",
-                "name": "Go  Giddy",
-                "body": [
-                    {
-                        "x": 9,
-                        "y": 3
-                    },
-                    {
-                        "x": 9,
-                        "y": 4
-                    },
-                    {
-                        "x": 9,
-                        "y": 5
-                    },
-                    {
-                        "x": 8,
-                        "y": 5
-                    },
-                    {
-                        "x": 7,
-                        "y": 5
-                    },
-                    {
-                        "x": 7,
-                        "y": 6
-                    },
-                    {
-                        "x": 7,
-                        "y": 6
-                    }
-                ],
-                "head": {
-                    "x": 9,
-                    "y": 3
-                },
-                "length": 7,
-                "health": 100,
-                "shout": "",
-                "squad": ""
+                        "name": "Go  Giddy",
+                        "body": [
+                            {
+                                "x": 8,
+                                "y": 1
+                            },
+                            {
+                                "x": 7,
+                                "y": 1
+                            },
+                            {
+                                "x": 6,
+                                "y": 1
+                            },
+                            {
+                                "x": 6,
+                                "y": 0
+                            }
+                        ],
+                        "head": {
+                            "x": 8,
+                            "y": 1
+                        },
+                        "length": 4,
+                        "health": 40,
+                        "shout": "",
+                        "squad": ""
             }
         }"#,
         );

@@ -8,6 +8,8 @@ use super::Point;
 use super::Snake;
 use super::{Direction, ALL_DIRECTIONS};
 
+use super::game_logger::area_control_visualiser;
+
 #[derive(Debug, Clone)]
 pub struct Board {
     pub snakes: Vec<Snake>,
@@ -46,6 +48,8 @@ impl PartialEq for OpenNode {
     }
 }
 
+/// = area, food count, closest food
+/// area = hazards * 1 + empty * 16
 #[derive(Debug, Clone)]
 pub struct Area(pub usize,pub usize,pub Option<Point>);
 
@@ -201,20 +205,20 @@ impl Board {
 
     pub fn get_area(&self, hazards: &Vec<Point>) -> Vec<Area> {
         let mut visited: HashMap<Point, usize> = HashMap::new();
-        let mut queue: HashSet<(Point, usize)> = HashSet::new();
+        let mut queue: VecDeque<(Point, usize)> = VecDeque::new();
         for (i, snake) in self.snakes.iter().enumerate() {
             visited.insert(snake.head(), i);
-            queue.insert((snake.head(), i));
+            queue.push_back((snake.head(), i));
         }
         let mut turn: usize = 1;
         while !queue.is_empty() {
-            let mut next_queue: HashSet<(Point, usize)> = HashSet::new();
+            let mut next_queue: VecDeque<(Point, usize)> = VecDeque::new();
             for (current, owner) in queue.iter() {
                 for m in self.get_pruned_moves(&current, turn).iter() {
                     let new_point = *current + m;
                     if !visited.contains_key(&new_point) {
                         visited.insert(new_point, *owner);
-                        next_queue.insert((new_point, *owner));
+                        next_queue.push_back((new_point, *owner));
                     }
                 }
             }
@@ -223,6 +227,7 @@ impl Board {
         }
 
         let mut ret = vec![Area(0, 0, None); self.snakes.len()];
+        // area_control_visualiser(&visited, ((self.bound.x + 1) as usize, (self.bound.y + 1) as usize));
         for (point, &owner) in visited.iter() {
             if self.check_food(point).is_some() {
                 let dist = self.snakes.get(owner).unwrap().head().manhattan_distance(point);
