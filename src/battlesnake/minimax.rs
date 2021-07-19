@@ -193,9 +193,9 @@ pub fn get_move(gameinfo: &GameInfo, time_budget: Duration) -> Move {
             break 'minimax;
         }
 
-        if first.depth == 20 {
-            break 'minimax;
-        }
+        // if first.depth == 20 {
+        //     break 'minimax;
+        // }
 
         let all_snakes_moves = first.board.get_all_moves();
 
