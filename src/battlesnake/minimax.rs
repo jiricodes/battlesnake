@@ -115,6 +115,22 @@ pub fn heuristic(board: &Board, snake_index: usize, hazards: &Vec<Point>) -> f32
         *other_index == snake_index || other.size() < snake_len || snake_head.manhattan_distance(&other.head()) > 2
     }).count() as f32 / n_snakes as f32;
 
+    let mut total_dist = 1.0;
+    let mut bigger_dist = 1.0;
+    let mut smaller_dist = 1.0;
+    for (i, other) in board.snakes.iter().enumerate() {
+        if i == snake_index { continue; }
+        let d = snake_head.manhattan_distance(&other.head()) as f32;
+        total_dist += d;
+        if other.size() < snake_len {
+            smaller_dist += d;
+        } else {
+            bigger_dist += d;
+        }
+    }
+    // println!("Smaller: {} | Bigger: {} | Total: {}", smaller_dist, bigger_dist, total_dist);
+    let h2h_dist_score = (1.0 - smaller_dist / total_dist) * (bigger_dist / total_dist);
+
     let snakes_ratio = 1.0 / n_snakes as f32;
 
     
@@ -142,8 +158,8 @@ pub fn heuristic(board: &Board, snake_index: usize, hazards: &Vec<Point>) -> f32
     //     }
     // }
     
-    // println!("Area: {:10.6}\nFood: {:10.6}\nH2H: {:11.6}\nSrat: {:10.6}\nlrat: {:10.6}\n", area_control_score, food_score, htoh_score, snakes_ratio, len_score);
-    area_control_score * food_score * htoh_score * snakes_ratio * len_score * health_score //* aggression
+    // println!("Area: {:10.6}\nFood: {:10.6}\nH2H: {:11.6}\nSrat: {:10.6}\nlrat: {:10.6}\nhp: {:12.6}\nprox: {:10.6}\n", area_control_score, food_score, htoh_score, snakes_ratio, len_score, health_score, h2h_dist_score);
+    area_control_score * food_score * htoh_score * snakes_ratio * len_score * health_score * h2h_dist_score
 }
 
 pub fn get_move(gameinfo: &GameInfo, time_budget: Duration) -> Move {
@@ -177,9 +193,9 @@ pub fn get_move(gameinfo: &GameInfo, time_budget: Duration) -> Move {
             break 'minimax;
         }
 
-        // if first.depth == 10 {
-        //     break 'minimax;
-        // }
+        if first.depth == 20 {
+            break 'minimax;
+        }
 
         let all_snakes_moves = first.board.get_all_moves();
 
@@ -750,7 +766,7 @@ mod test {
                             "y": 2
                         },
                         "length": 4,
-                        "health": 95,
+                        "health": 40,
                         "shout": "",
                         "squad": ""
                     },
@@ -853,7 +869,7 @@ mod test {
                             "y": 2
                         },
                         "length": 4,
-                        "health": 95,
+                        "health": 40,
                         "shout": "",
                         "squad": ""
             }
@@ -1054,4 +1070,5 @@ mod test {
         let heur = heuristic(&board, 0, &hazards);
         dbg!(heur);
     }
+    
 }

@@ -1,6 +1,6 @@
 #! /bin/bash
 
-num_games=100
+num_games=20
 
 #args
 if [ "$1" == "-q" ]

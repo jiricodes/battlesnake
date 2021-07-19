@@ -6,26 +6,42 @@ Currently working on implementation solely for Royale mode due to ongoing [Summe
 ## Current state
 
 ### Aggregate
+Reached top 16 aka 'Elite' with GoGiddy v0.1.1 which was surprising...
+
 On aggregate all version have achieved following results during battlesnake's Summer League Event 2021:
 ```
-Jul 1
+Jul 18
 
-Games: 2,447
-Wins: 752
-Losses: 1,695
-Win Rate: 30.73%
+Games: 4,586
+Wins: 1,431
+Losses: 3,155
+Win Rate: 31.2%
 ```
+
+### v0.2.0
+```
+Jul 18
+
+Games: 6
+Wins: 2
+Losses: 4
+Win Rate: 33.33%
+```
+Heavily updated heuristics with floodfill/area control. This version has about 40% win ratio against its predecessor, but could be viable in top 16...
 
 ### v0.1.1
+Stats at the end of life:
 ```
-Jun 30
+Jul 18
 
-Games: 239
-Wins: 110
-Losses: 129
-Win Rate: 46.03%
+Games: 2,372
+Wins: 787
+Losses: 1,585
+Win Rate: 33.18%
 ```
-Slightly updated heuristics. WIP
+Slightly updated heuristics.
+
+Overall this version surpassed all expectations. Fairly early reached rank +-13 with ~44% win rate at time, then stabilized itself and reached Elite.
 
 ### v0.1.0
 Stats at the end of life:
