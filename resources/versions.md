@@ -3,6 +3,9 @@
 ## WIP 0.2.0
 Refactoring, restructuring, reinventing for new season. Breaks everything below
 
+### New structure
+The project has been split to api binary and engine library.
+
 ## Summer League 2021
 This was my first ever battlesnake. Started with A* only and developed into somewhat working minmax.
 
