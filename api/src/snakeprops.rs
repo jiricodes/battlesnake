@@ -11,7 +11,7 @@ use serde::{Deserialize, Serialize};
 /// Snake Properties as defined in [BattleSnake API Reference](https://docs.battlesnake.com/references/api#get)
 ///
 /// Check your BattleSnake profile for available cosmetics
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
 pub struct SnakeProps<'a> {
 	/// Apiversion must be set to "1" atm.
 	apiversion: &'a str,
