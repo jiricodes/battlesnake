@@ -9,6 +9,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize, Debug)]
 struct RoyaleSettings {
     /// In Royale mode, the number of turns between generating new hazards (shrinking the safe board space).
+    #[serde(rename = "shrinkEveryNTurns")]
     shrink_n: i32,
 }
 
@@ -16,12 +17,16 @@ struct RoyaleSettings {
 #[derive(Serialize, Deserialize, Debug)]
 struct SquadSettings {
     /// In Squad mode, allow members of the same squad to move over each other without dying.
+    #[serde(rename = "allowBodyCollisions")]
     allow_collision: bool,
     /// In Squad mode, all squad members are eliminated when one is eliminated.
+    #[serde(rename = "sharedElimination")]
     shared_elimination: bool,
     /// In Squad mode, all squad members share health.
+    #[serde(rename = "sharedHealth")]
     shared_health: bool,
     /// In Squad mode, all squad members share length.
+    #[serde(rename = "sharedLength")]
     shared_length: bool,
 }
 
@@ -29,11 +34,14 @@ struct SquadSettings {
 #[derive(Serialize, Deserialize, Debug)]
 struct RulesetSettings {
     /// Percentage chance of spawning a new food every round.
-    food_spawn_chance: i32,
+    #[serde(rename = "foodSpawnChance")]
+    food_spawn_chance: u32,
     /// Minimum food to keep on the board every turn
-    min_food: i32,
+    #[serde(rename = "minimumFood")]
+    min_food: u32,
     /// Health damage a snake will take when ending its turn in a hazard. This stacks on top of the regular 1 damage a snake takes per turn.
-    hazard_dmg: i32,
+    #[serde(rename = "hazardDamagePerTurn")]
+    hazard_dmg: u32,
     /// Royale settings
     royale: RoyaleSettings,
     /// Squad settings
@@ -59,7 +67,7 @@ pub struct GameContext {
     /// Information about the ruleset being used to run this game.
     ruleset: RuleSet,
     /// How much time (milliseconds) your snake has to respond to requests for this Game.
-    timeout: i32,
+    timeout: u32,
     /// The source of this game, e.g. "league" or "custom".
     source: String,
 }

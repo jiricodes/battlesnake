@@ -2,7 +2,15 @@
 //!
 //! These structures are created per [BattleSnake API documentation](https://docs.battlesnake.com/references/api#board)
 
+// External
+use serde::{Deserialize, Serialize};
+
+// Local
+use super::Battlesnake;
+use crate::point::Point;
+
 /// The game board is represented by a standard 2D grid, oriented with (0,0) in the bottom left. The Y-Axis is positive in the up direction, and X-Axis is positive to the right.
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Board {
     /// The number of rows in the y-axis of the game board.
     height: i32,
