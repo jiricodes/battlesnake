@@ -1,5 +1,5 @@
 [package]
-name = "BattleSnakeEngine"
+name = "battlesnake_engine"
 version = "0.2.0"
 license = "MIT"
 authors = ["Jiri Novotny <hello@jiricodes.com>"]

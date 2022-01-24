@@ -1,14 +1,19 @@
 //! Module to handle API for Game Object.
-//! 
+//!
 //! These structures are created per [BattleSnake API documentation](https://docs.battlesnake.com/references/api)
 
+use super::super::utils::status::{Error, Result};
+use serde::{Deserialize, Serialize};
+
 /// Wrapper for royale.shrinkEveryNTurns
+#[derive(Serialize, Deserialize, Debug)]
 struct RoyaleSettings {
     /// In Royale mode, the number of turns between generating new hazards (shrinking the safe board space).
     shrink_n: i32,
 }
 
 /// Wrapper for squad settings
+#[derive(Serialize, Deserialize, Debug)]
 struct SquadSettings {
     /// In Squad mode, allow members of the same squad to move over each other without dying.
     allow_collision: bool,
@@ -17,9 +22,11 @@ struct SquadSettings {
     /// In Squad mode, all squad members share health.
     shared_health: bool,
     /// In Squad mode, all squad members share length.
-    shared_length: bool
+    shared_length: bool,
 }
+
 /// Various game type specific settings. [Details](https://docs.battlesnake.com/references/api#rulesetsettings).
+#[derive(Serialize, Deserialize, Debug)]
 struct RulesetSettings {
     /// Percentage chance of spawning a new food every round.
     food_spawn_chance: i32,
@@ -31,20 +38,21 @@ struct RulesetSettings {
     royale: RoyaleSettings,
     /// Squad settings
     squad: SquadSettings,
-
 }
 
 /// Ruleset struct. [Details](https://docs.battlesnake.com/references/api#ruleset).
+#[derive(Serialize, Deserialize, Debug)]
 struct RuleSet {
     /// Name of the ruleset, e.g. solo, royale
     name: String,
     /// The release version of the [Rules](https://github.com/BattlesnakeOfficial/rules) module used in this game.
-    version: String
+    version: String,
     /// A collection of specific settings being used by the current game that control how the rules are applied.
-    settings: Option<RulesetSettings>
+    settings: Option<RulesetSettings>,
 }
 
 /// Game Object. [Details](https://docs.battlesnake.com/references/api#game).
+#[derive(Serialize, Deserialize, Debug)]
 pub struct GameContext {
     /// A unique identifier for this Game.
     id: String,
@@ -54,4 +62,23 @@ pub struct GameContext {
     timeout: i32,
     /// The source of this game, e.g. "league" or "custom".
     source: String,
+}
+
+impl GameContext {
+    pub fn from_json(json_data: &str) -> Result<Self> {
+        match serde_json::from_str(json_data) {
+            Ok(val) => Ok(val),
+            Err(e) => Err(Error::from(e)),
+        }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    #[test]
+    fn gamecontext_fails() {
+        let data = "fail";
+        assert!(GameContext::from_json(&data).is_err());
+    }
 }
