@@ -2,7 +2,8 @@
 #[macro_use]
 extern crate actix_web;
 
-use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
+use actix_web::{get, middleware::Logger, post, web, App, HttpResponse, HttpServer, Responder};
+use env_logger;
 
 // Local Dependencies
 mod snakeprops;
@@ -23,14 +24,14 @@ async fn domove(gamestate: web::Json<GameState>) -> impl Responder {
 }
 
 #[post("/start")]
-async fn start(gamestate: String) -> impl Responder {
+async fn start(gamestate: web::Json<GameState>) -> impl Responder {
 	dbg!("Received POST /start");
 	dbg!(gamestate);
 	HttpResponse::Ok()
 }
 
 #[post("/end")]
-async fn end(gamestate: String) -> impl Responder {
+async fn end(gamestate: web::Json<GameState>) -> impl Responder {
 	dbg!("Received POST /end");
 	dbg!(gamestate);
 	HttpResponse::Ok()
@@ -38,6 +39,9 @@ async fn end(gamestate: String) -> impl Responder {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+	// toggle actix_logger
+	env_logger::init_from_env(env_logger::Env::new().default_filter_or("trace"));
+
 	// Change Snake Properties
 	let mut snakeprops = SnakeProps::default();
 	snakeprops.set_color("#622BAA");
@@ -51,6 +55,7 @@ async fn main() -> std::io::Result<()> {
 			.service(domove)
 			.service(start)
 			.service(end)
+			.wrap(Logger::default())
 	})
 	.bind("0.0.0.0:6969")?
 	.run()
