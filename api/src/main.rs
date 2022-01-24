@@ -4,11 +4,9 @@ extern crate actix_web;
 
 use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
 
-// Std
-use std::sync::RwLock;
-
 // Local Dependencies
 mod snakeprops;
+use battlesnake_engine::api::GameState;
 use snakeprops::SnakeProps;
 
 #[get("/")]
@@ -18,20 +16,23 @@ async fn index(data: web::Data<SnakeProps<'_>>) -> impl Responder {
 }
 
 #[post("/move")]
-async fn domove(data: String) -> impl Responder {
+async fn domove(gamestate: web::Json<GameState>) -> impl Responder {
 	dbg!("Received POST /move");
+	dbg!(gamestate);
 	HttpResponse::Ok()
 }
 
 #[post("/start")]
-async fn start(data: String) -> impl Responder {
+async fn start(gamestate: String) -> impl Responder {
 	dbg!("Received POST /start");
+	dbg!(gamestate);
 	HttpResponse::Ok()
 }
 
 #[post("/end")]
-async fn end(data: String) -> impl Responder {
+async fn end(gamestate: String) -> impl Responder {
 	dbg!("Received POST /end");
+	dbg!(gamestate);
 	HttpResponse::Ok()
 }
 
