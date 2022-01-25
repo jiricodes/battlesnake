@@ -6,7 +6,9 @@ use serde::{Deserialize, Serialize};
 
 // Std
 use std::cmp::PartialEq;
+use std::convert::From;
 use std::fmt;
+use std::ops::{Add, Sub};
 use std::slice::Iter;
 
 // Local
@@ -35,6 +37,94 @@ impl Default for Point {
 impl fmt::Display for Point {
 	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
 		write!(f, "{{{}, {}}}", self.x, self.y)
+	}
+}
+
+impl Sub for Point {
+	type Output = Self;
+
+	fn sub(self, other: Self) -> Self::Output {
+		Self {
+			x: self.x - other.x,
+			y: self.y - other.y,
+		}
+	}
+}
+
+impl Sub<&Point> for Point {
+	type Output = Self;
+
+	fn sub(self, other: &Self) -> Self::Output {
+		Self {
+			x: self.x - other.x,
+			y: self.y - other.y,
+		}
+	}
+}
+
+impl Sub for &Point {
+	type Output = Point;
+
+	fn sub(self, other: Self) -> Self::Output {
+		Point {
+			x: self.x - other.x,
+			y: self.y - other.y,
+		}
+	}
+}
+
+impl Sub<Point> for &Point {
+	type Output = Point;
+
+	fn sub(self, other: Point) -> Self::Output {
+		Point {
+			x: self.x - other.x,
+			y: self.y - other.y,
+		}
+	}
+}
+
+impl Add for Point {
+	type Output = Self;
+
+	fn add(self, other: Self) -> Self::Output {
+		Self::Output {
+			x: self.x + other.x,
+			y: self.y + other.y,
+		}
+	}
+}
+
+impl Add<&Point> for Point {
+	type Output = Self;
+
+	fn add(self, other: &Self) -> Self::Output {
+		Self::Output {
+			x: self.x + other.x,
+			y: self.y + other.y,
+		}
+	}
+}
+
+impl Add for &Point {
+	type Output = Point;
+
+	fn add(self, other: Self) -> Self::Output {
+		Self::Output {
+			x: self.x + other.x,
+			y: self.y + other.y,
+		}
+	}
+}
+
+impl Add<Point> for &Point {
+	type Output = Point;
+
+	fn add(self, other: Point) -> Self::Output {
+		Self::Output {
+			x: self.x + other.x,
+			y: self.y + other.y,
+		}
 	}
 }
 
@@ -86,6 +176,19 @@ impl TryFrom<Point> for Direction {
 	}
 }
 
+impl TryFrom<&Point> for Direction {
+	type Error = Error;
+	fn try_from(point: &Point) -> Result<Self> {
+		match point {
+			Point { x: 1, y: 0 } => Ok(Direction::Right),
+			Point { x: -1, y: 0 } => Ok(Direction::Left),
+			Point { x: 0, y: 1 } => Ok(Direction::Up),
+			Point { x: 0, y: -1 } => Ok(Direction::Down),
+			_ => Err(Error::Engine(ErrorKind::FailedConversion)),
+		}
+	}
+}
+
 #[cfg(test)]
 mod test {
 	use super::*;
@@ -121,5 +224,39 @@ mod test {
 		assert!(Direction::try_from(Point { x: -31, y: 91 }).is_err());
 		assert!(Direction::try_from(Point { x: 10, y: 11 }).is_err());
 		assert!(Direction::try_from(Point { x: 5, y: -1 }).is_err());
+		assert_eq!(
+			Direction::try_from(&Point { x: 1, y: 0 }).unwrap(),
+			Direction::Right
+		);
+		assert_eq!(
+			Direction::try_from(&Point { x: -1, y: 0 }).unwrap(),
+			Direction::Left
+		);
+		assert_eq!(
+			Direction::try_from(&Point { x: 0, y: 1 }).unwrap(),
+			Direction::Up
+		);
+		assert_eq!(
+			Direction::try_from(&Point { x: 0, y: -1 }).unwrap(),
+			Direction::Down
+		);
+		assert!(Direction::try_from(&Point { x: -1, y: -1 }).is_err());
+		assert!(Direction::try_from(&Point { x: -31, y: 91 }).is_err());
+		assert!(Direction::try_from(&Point { x: 10, y: 11 }).is_err());
+		assert!(Direction::try_from(&Point { x: 5, y: -1 }).is_err());
+	}
+
+	#[test]
+	fn point_ops() {
+		let a = Point { x: 5, y: 5 };
+		let b = Point { x: 1, y: 2 };
+		assert_eq!(a + b, Point { x: 6, y: 7 });
+		assert_eq!(a + &b, Point { x: 6, y: 7 });
+		assert_eq!(&a + b, Point { x: 6, y: 7 });
+		assert_eq!(&a + &b, Point { x: 6, y: 7 });
+		assert_eq!(a - b, Point { x: 4, y: 3 });
+		assert_eq!(a - &b, Point { x: 4, y: 3 });
+		assert_eq!(&a - b, Point { x: 4, y: 3 });
+		assert_eq!(&a - &b, Point { x: 4, y: 3 });
 	}
 }
