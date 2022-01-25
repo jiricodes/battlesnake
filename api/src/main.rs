@@ -12,52 +12,52 @@ use snakeprops::SnakeProps;
 
 #[get("/")]
 async fn index(data: web::Data<SnakeProps<'_>>) -> impl Responder {
-	dbg!("Received GET /");
-	HttpResponse::Ok().body(data.json())
+    dbg!("Received GET /");
+    HttpResponse::Ok().body(data.json())
 }
 
 #[post("/move")]
 async fn domove(gamestate: web::Json<GameState>) -> impl Responder {
-	dbg!("Received POST /move");
-	dbg!(gamestate);
-	HttpResponse::Ok()
+    dbg!("Received POST /move");
+    dbg!(gamestate);
+    HttpResponse::Ok()
 }
 
 #[post("/start")]
 async fn start(gamestate: web::Json<GameState>) -> impl Responder {
-	dbg!("Received POST /start");
-	dbg!(gamestate);
-	HttpResponse::Ok()
+    dbg!("Received POST /start");
+    dbg!(gamestate);
+    HttpResponse::Ok()
 }
 
 #[post("/end")]
 async fn end(gamestate: web::Json<GameState>) -> impl Responder {
-	dbg!("Received POST /end");
-	dbg!(gamestate);
-	HttpResponse::Ok()
+    dbg!("Received POST /end");
+    dbg!(gamestate);
+    HttpResponse::Ok()
 }
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-	// toggle actix_logger
-	env_logger::init_from_env(env_logger::Env::new().default_filter_or("trace"));
+    // toggle actix_logger
+    env_logger::init_from_env(env_logger::Env::new().default_filter_or("trace"));
 
-	// Change Snake Properties
-	let mut snakeprops = SnakeProps::default();
-	snakeprops.set_color("#622BAA");
-	snakeprops.set_head("villain");
-	snakeprops.set_tail("skinny-jeans");
-	// Start the HTTP server
-	HttpServer::new(move || {
-		App::new()
-			.data(snakeprops)
-			.service(index)
-			.service(domove)
-			.service(start)
-			.service(end)
-			.wrap(Logger::default())
-	})
-	.bind("0.0.0.0:6969")?
-	.run()
-	.await
+    // Change Snake Properties
+    let mut snakeprops = SnakeProps::default();
+    snakeprops.set_color("#622BAA");
+    snakeprops.set_head("villain");
+    snakeprops.set_tail("skinny-jeans");
+    // Start the HTTP server
+    HttpServer::new(move || {
+        App::new()
+            .data(snakeprops)
+            .service(index)
+            .service(domove)
+            .service(start)
+            .service(end)
+            .wrap(Logger::default())
+    })
+    .bind("0.0.0.0:6969")?
+    .run()
+    .await
 }

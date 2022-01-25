@@ -1,37 +1,65 @@
 //! Error utility module
 
+use std::cmp::{PartialEq, PartialOrd};
 use std::fmt;
 use std::io;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
-pub enum ApiErrorKind {}
+#[derive(Clone, Copy, Eq, Hash, Ord, PartialEq, PartialOrd)]
+pub enum ErrorKind {
+	FailedConversion,
+}
+
+impl ErrorKind {
+	fn as_str(&self) -> &str {
+		match *self {
+			ErrorKind::FailedConversion => "Conversion Attempt failed",
+		}
+	}
+
+	fn error_name(&self) -> &str {
+		match *self {
+			ErrorKind::FailedConversion => "FailedConversion",
+		}
+	}
+}
+
+impl fmt::Debug for ErrorKind {
+	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+		f.debug_struct(self.error_name())
+			.field("message", &self.as_str())
+			.finish()
+	}
+}
 
 #[derive(Debug)]
 pub enum Error {
-    Io(io::Error),
-    Serde(serde_json::Error),
-    Custom(String),
+	Io(io::Error),
+	Serde(serde_json::Error),
+	Engine(ErrorKind),
+	Custom(String),
 }
 
 impl fmt::Display for Error {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match *self {
-            Error::Io(ref err) => err.fmt(f),
-            Error::Serde(ref err) => err.fmt(f),
-            Error::Custom(ref err) => write!(f, "Custom Error: {:?}", err),
-        }
-    }
+	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+		match *self {
+			Error::Io(ref err) => err.fmt(f),
+			Error::Serde(ref err) => err.fmt(f),
+			Error::Engine(ref err) => write!(f, "Engine Error: {:?}", err),
+			Error::Custom(ref err) => write!(f, "Custom Error: {:?}", err),
+		}
+	}
 }
 
 impl From<io::Error> for Error {
-    fn from(f: io::Error) -> Self {
-        Self::Io(f)
-    }
+	fn from(f: io::Error) -> Self {
+		Self::Io(f)
+	}
 }
 
 impl From<serde_json::Error> for Error {
-    fn from(f: serde_json::Error) -> Self {
-        Self::Serde(f)
-    }
+	fn from(f: serde_json::Error) -> Self {
+		Self::Serde(f)
+	}
 }
