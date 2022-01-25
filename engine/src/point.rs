@@ -88,6 +88,7 @@ impl Point {
 }
 
 impl Default for Point {
+	/// Creates a Point with coordinates (0, 0)
 	fn default() -> Self {
 		Self { x: 0, y: 0 }
 	}
