@@ -30,6 +30,15 @@ impl GameState {
     }
 }
 
+pub enum GameMode {
+    Solo,
+    Standard,
+    Royale,
+    Wrapped,
+    Constrictor,
+    Squad,
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
