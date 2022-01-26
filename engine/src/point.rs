@@ -255,6 +255,13 @@ impl TryFrom<&Point> for Direction {
 	}
 }
 
+impl Default for Direction {
+	/// According to Battlesnake docs, default direction is `UP`.
+	fn default() -> Self {
+		Direction::Up
+	}
+}
+
 #[cfg(test)]
 mod test {
 	use super::*;

@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 // Local
 mod battlesnake;
-use battlesnake::Battlesnake;
+pub use battlesnake::Battlesnake;
 
 mod board;
 use board::Board;
