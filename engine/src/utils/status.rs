@@ -9,18 +9,21 @@ pub type Result<T> = std::result::Result<T, Error>;
 #[derive(Clone, Copy, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub enum ErrorKind {
 	FailedConversion,
+	OutOfHealth,
 }
 
 impl ErrorKind {
 	fn as_str(&self) -> &str {
 		match *self {
 			ErrorKind::FailedConversion => "Conversion Attempt failed",
+			ErrorKind::OutOfHealth => "Snake is out of health with current move",
 		}
 	}
 
 	fn error_name(&self) -> &str {
 		match *self {
 			ErrorKind::FailedConversion => "FailedConversion",
+			ErrorKind::OutOfHealth => "SnakeDeath",
 		}
 	}
 }
