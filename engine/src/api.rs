@@ -11,6 +11,9 @@ use board::Board;
 mod gamectx;
 use gamectx::GameContext;
 
+mod movement;
+pub use movement::Movement;
+
 use super::utils::status::{Error, Result};
 
 #[derive(Serialize, Deserialize, Debug)]

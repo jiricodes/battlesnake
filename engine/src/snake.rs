@@ -34,13 +34,15 @@ impl Snake {
 	///
 	/// # Example
 	/// ```
+	/// # use battlesnake_engine::snake::Snake;
+	/// # use battlesnake_engine::point::{Direction, Point};
 	/// // Basic
 	/// let snake = Snake::new(100, vec![Point::new(3, 0), Point::new(2, 0), Point::new(1, 0)]);
-	/// assert_eq!(snake.get_default_move(), Direction::Right);
+	/// assert_eq!(snake.get_default_move().unwrap(), Direction::Right);
 	///
 	/// // Missing neck (and head)
-	/// let snake = Snake::new(100, VEc::new());
-	///	assert_eq!(snake.get_default_move(), Direction::default());
+	/// let snake = Snake::new(100, Vec::new());
+	///	assert_eq!(snake.get_default_move().unwrap(), Direction::default());
 	///
 	/// ```
 	pub fn get_default_move(&self) -> Result<Direction> {
@@ -84,6 +86,8 @@ impl Snake {
 	///
 	/// # Examples
 	/// ```
+	/// # use battlesnake_engine::snake::Snake;
+	/// # use battlesnake_engine::point::{Direction, Point};
 	/// let mut snake = Snake::new(100, vec![Point::new(3, 0), Point::new(2, 0), Point::new(1, 0)]);
 	/// assert!(snake.reduce_health(50).is_ok());
 	/// assert!(snake.reduce_health(100).is_err());
