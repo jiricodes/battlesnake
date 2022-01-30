@@ -2,7 +2,8 @@
 //!
 //! These structures are created per [BattleSnake API documentation](https://docs.battlesnake.com/references/api)
 
-use super::super::utils::status::{Error, Result};
+use crate::api::GameMode;
+use crate::utils::status::{Error, Result};
 use serde::{Deserialize, Serialize};
 
 /// Wrapper for royale.shrinkEveryNTurns
@@ -78,6 +79,10 @@ impl GameContext {
             Ok(val) => Ok(val),
             Err(e) => Err(Error::from(e)),
         }
+    }
+
+    pub fn gamemode(&self) -> GameMode {
+        GameMode::from(&self.ruleset.name[..])
     }
 }
 

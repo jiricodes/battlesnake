@@ -31,6 +31,10 @@ impl GameState {
             Err(e) => Err(Error::from(e)),
         }
     }
+
+    pub fn gamemode(&self) -> GameMode {
+        self.game.gamemode()
+    }
 }
 
 pub enum GameMode {
@@ -40,6 +44,21 @@ pub enum GameMode {
     Wrapped,
     Constrictor,
     Squad,
+    Custom,
+}
+
+impl From<&str> for GameMode {
+    fn from(f: &str) -> Self {
+        match f {
+            "solo" => Self::Solo,
+            "standard" => Self::Standard,
+            "royale" => Self::Royale,
+            "wrapped" => Self::Wrapped,
+            "constrictor" => Self::Constrictor,
+            "squad" => Self::Squad,
+            _ => Self::Custom,
+        }
+    }
 }
 
 #[cfg(test)]
