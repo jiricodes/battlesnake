@@ -65,7 +65,7 @@ async fn main() -> std::io::Result<()> {
             .service(end)
             .wrap(Logger::default())
     })
-    .bind("0.0.0.0:6969")?
+    .bind("localhost:6969")?
     .run()
     .await
 }
