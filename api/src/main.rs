@@ -7,7 +7,8 @@ use env_logger;
 
 // Local Dependencies
 mod snakeprops;
-use battlesnake_engine::api::GameState;
+use battlesnake_engine::api::{GameState, Movement};
+use battlesnake_engine::make_move;
 use snakeprops::SnakeProps;
 
 #[get("/")]
@@ -19,8 +20,15 @@ async fn index(data: web::Data<SnakeProps<'_>>) -> impl Responder {
 #[post("/move")]
 async fn domove(gamestate: web::Json<GameState>) -> impl Responder {
     dbg!("Received POST /move");
-    dbg!(gamestate);
-    HttpResponse::Ok()
+    let movement = make_move(&gamestate);
+    let response = match movement.json() {
+        Ok(val) => val,
+        Err(e) => {
+            dbg!(e);
+            Movement::default().json().unwrap()
+        }
+    };
+    HttpResponse::Ok().body(response)
 }
 
 #[post("/start")]

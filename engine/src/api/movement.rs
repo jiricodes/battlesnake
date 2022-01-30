@@ -43,3 +43,22 @@ impl fmt::Display for Movement {
         write!(f, "{} | {}", self.direction, shout)
     }
 }
+
+impl Default for Movement {
+    fn default() -> Self {
+        Self {
+            direction: Direction::default(),
+            shout: Some(String::from("Default move")),
+        }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    #[test]
+    fn basics() {
+        let movement = Movement::default();
+        assert!(movement.json().is_ok());
+    }
+}
