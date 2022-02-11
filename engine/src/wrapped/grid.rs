@@ -1,4 +1,5 @@
 ///! Grid implementation for Wrapped game mode
+///
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum GridObject {
 	Empty,
